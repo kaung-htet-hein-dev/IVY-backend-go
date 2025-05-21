@@ -1,0 +1,35 @@
+package api
+
+import (
+	"KaungHtetHein116/IVY-backend/api/middleware"
+	v1 "KaungHtetHein116/IVY-backend/api/v1"
+	"KaungHtetHein116/IVY-backend/config"
+	"KaungHtetHein116/IVY-backend/utils"
+	"os"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
+)
+
+func init() {
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+	log.SetLevel(log.InfoLevel)
+}
+
+func StartServer() {
+	db := config.ConnectDB()
+
+	e := echo.New()
+	e.Validator = &utils.CustomValidator{Validator: validator.New()}
+
+	middleware.RegisterBasicMiddlewares(e)
+
+	v1.RegisterUserRoutes(e, db)
+
+	port := ":" + os.Getenv("APP_PORT")
+
+	log.Fatal(e.Start(port))
+}
