@@ -39,11 +39,8 @@ func ConnectDB() *gorm.DB {
 
 	err = db.AutoMigrate(
 		&entity.User{},
-		&entity.Category{},
-		&entity.Branch{},
-		&entity.Service{},
-		&entity.Booking{},
 	)
+
 	if err != nil {
 		log.Fatalf("Failed to migrate database %v", err)
 	}
