@@ -10,10 +10,11 @@ import (
 
 var (
 	// Data related errors
-	ErrDuplicateEntry = errors.New("record already exists")
-	ErrRecordNotFound = errors.New("record not found")
-	ErrInvalidData    = errors.New("invalid data provided")
-	ErrDatabaseError  = errors.New("database error")
+	ErrDuplicateEntry     = errors.New("record already exists")
+	ErrRecordNotFound     = errors.New("record not found")
+	ErrInvalidData        = errors.New("invalid data provided")
+	ErrDatabaseError      = errors.New("database error")
+	ErrInvalidCredentials = errors.New("invalid credentials")
 
 	// Constraint errors
 	ErrForeignKeyViolation = errors.New("foreign key violation")

@@ -12,6 +12,7 @@ import (
 
 type UserHandler interface {
 	RegisterUser(c echo.Context, user *request.UserRegisterRequest) error
+	LoginUser(c echo.Context, user *request.UserLoginRequest) error
 }
 
 type userHandler struct {
@@ -35,4 +36,23 @@ func (h *userHandler) RegisterUser(c echo.Context, user *request.UserRegisterReq
 	}
 
 	return transport.NewApiSuccessResponse(c, http.StatusCreated, "User registered successfully", nil)
+}
+
+func (h *userHandler) LoginUser(c echo.Context, user *request.UserLoginRequest) error {
+	token, err := h.userUsecase.LoginUser(user)
+
+	if err != nil {
+		if err == utils.ErrRecordNotFound {
+			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)
+		}
+
+		if err == utils.ErrInvalidCredentials {
+			return transport.NewApiErrorResponse(c, http.StatusUnauthorized, "Invalid credentials", nil)
+		}
+
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to login user", err)
+	}
+
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "User logged in successfully",
+		echo.Map{"token": token})
 }
