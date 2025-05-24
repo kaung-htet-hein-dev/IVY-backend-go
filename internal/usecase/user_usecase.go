@@ -13,6 +13,7 @@ import (
 type UserUsecase interface {
 	RegisterUser(user *request.UserRegisterRequest) error
 	LoginUser(user *request.UserLoginRequest) (string, error)
+	GetMe(userID string) (*entity.User, error)
 }
 
 type userUsecase struct {
@@ -70,4 +71,15 @@ func (u *userUsecase) LoginUser(user *request.UserLoginRequest) (string, error) 
 	}
 
 	return token, nil
+}
+
+func (u *userUsecase) GetMe(userID string) (*entity.User, error) {
+	userData, err := u.userRepo.GetUserByID(userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.ErrRecordNotFound
+		}
+		return nil, err
+	}
+	return userData, nil
 }

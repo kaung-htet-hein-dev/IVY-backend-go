@@ -13,6 +13,7 @@ import (
 type UserHandler interface {
 	RegisterUser(c echo.Context, user *request.UserRegisterRequest) error
 	LoginUser(c echo.Context, user *request.UserLoginRequest) error
+	GetMe(c echo.Context) error
 }
 
 type userHandler struct {
@@ -35,7 +36,11 @@ func (h *userHandler) RegisterUser(c echo.Context, user *request.UserRegisterReq
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to register user", err)
 	}
 
-	return transport.NewApiSuccessResponse(c, http.StatusCreated, "User registered successfully", nil)
+	// If registration is successful, return login user
+	return h.LoginUser(c, &request.UserLoginRequest{
+		Email:    user.Email,
+		Password: user.Password,
+	})
 }
 
 func (h *userHandler) LoginUser(c echo.Context, user *request.UserLoginRequest) error {
@@ -55,4 +60,22 @@ func (h *userHandler) LoginUser(c echo.Context, user *request.UserLoginRequest) 
 
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "User logged in successfully",
 		echo.Map{"token": token})
+}
+
+func (h *userHandler) GetMe(c echo.Context) error {
+	userID := c.Get("user_id").(string)
+	if userID == "" {
+		return transport.NewApiErrorResponse(c, http.StatusUnauthorized, "Unauthorized access", nil)
+	}
+
+	userData, err := h.userUsecase.GetMe(userID)
+
+	if err != nil {
+		if err == utils.ErrRecordNotFound {
+			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)
+		}
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get user data", err)
+	}
+
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "User data retrieved successfully", userData)
 }

@@ -26,6 +26,7 @@ func StartServer() {
 	e.Validator = &utils.CustomValidator{Validator: validator.New()}
 
 	middleware.RegisterBasicMiddlewares(e)
+	middleware.RegisterAuthMiddleware(e)
 
 	v1.RegisterUserRoutes(e, db)
 

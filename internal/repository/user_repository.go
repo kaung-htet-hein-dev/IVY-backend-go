@@ -11,6 +11,7 @@ type UserRepository interface {
 	CreateUser(user *entity.User) error
 	IsUserExist(email string) (bool, error)
 	GetUserByEmail(email string) (*entity.User, error)
+	GetUserByID(id string) (*entity.User, error)
 }
 
 type userRepository struct {
@@ -43,6 +44,17 @@ func (r *userRepository) CreateUser(user *entity.User) error {
 func (r *userRepository) GetUserByEmail(email string) (*entity.User, error) {
 	var user entity.User
 	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, utils.ErrRecordNotFound
+		}
+		return nil, utils.HandleGormError(err, "user")
+	}
+	return &user, nil
+}
+
+func (r *userRepository) GetUserByID(id string) (*entity.User, error) {
+	var user entity.User
+	if err := r.db.First(&user, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, utils.ErrRecordNotFound
 		}
