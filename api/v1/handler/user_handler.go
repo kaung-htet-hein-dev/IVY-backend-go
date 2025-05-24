@@ -64,6 +64,7 @@ func (h *userHandler) LoginUser(c echo.Context, user *request.UserLoginRequest) 
 
 func (h *userHandler) GetMe(c echo.Context) error {
 	userID := c.Get("user_id").(string)
+
 	if userID == "" {
 		return transport.NewApiErrorResponse(c, http.StatusUnauthorized, "Unauthorized access", nil)
 	}

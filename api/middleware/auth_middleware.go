@@ -22,16 +22,16 @@ var excludedRoutes = []paths{
 		method: http.MethodGet,
 	},
 	{
-		path:   constants.USER_API_PREFIX + "/login",
+		path:   "/api/v1/user/login",
 		method: http.MethodPost,
 	},
 	{
-		path:   constants.USER_API_PREFIX + "/register",
+		path:   "api/v1/user/register",
 		method: http.MethodPost,
 	},
 }
 
-func AuthMiddleware(e *echo.Echo) {
+func RegisterAuthMiddleware(e *echo.Echo) {
 	e.Use(JWTMiddleware())
 }
 
@@ -59,7 +59,8 @@ func JWTMiddleware() echo.MiddlewareFunc {
 
 			// Add user id to context
 			claims := token.Claims.(jwt.MapClaims)
-			c.Set("user_id", uint(claims["user_id"].(float64)))
+
+			c.Set("user_id", (claims["user_id"].(string)))
 
 			return next(c)
 		}

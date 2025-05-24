@@ -65,7 +65,7 @@ func (u *userUsecase) LoginUser(user *request.UserLoginRequest) (string, error) 
 	}
 
 	// generate JWT
-	token, err := utils.GenerateJWTToken(uint(userData.ID.ID()))
+	token, err := utils.GenerateJWTToken(userData.ID)
 	if err != nil {
 		return "", err
 	}

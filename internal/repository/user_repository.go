@@ -4,6 +4,7 @@ import (
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -54,7 +55,12 @@ func (r *userRepository) GetUserByEmail(email string) (*entity.User, error) {
 
 func (r *userRepository) GetUserByID(id string) (*entity.User, error) {
 	var user entity.User
-	if err := r.db.First(&user, id).Error; err != nil {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, utils.HandleGormError(err, "user")
+	}
+
+	if err := r.db.Omit("Password", "DeletedAt").First(&user, "id = ?", uid).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, utils.ErrRecordNotFound
 		}
