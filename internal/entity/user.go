@@ -12,8 +12,8 @@ type User struct {
 	CreatedAt   time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	UpdatedAt   time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	DeletedAt   *time.Time
-	Email       string `gorm:"type:varchar(255);unique;not null"`
-	Password    string `gorm:"type:varchar(255);not null"`
-	PhoneNumber string `gorm:"type:varchar(20)"`
-	Role        string `gorm:"type:varchar(20);check:role IN ('USER', 'ADMIN')"`
+	Email       string  `gorm:"type:varchar(255);unique;not null"`
+	Password    string  `gorm:"type:varchar(255);not null"`
+	PhoneNumber *string `gorm:"type:varchar(20)"`
+	Role        *string `gorm:"type:varchar(20);default:USER;check:role IN ('USER', 'ADMIN')"`
 }

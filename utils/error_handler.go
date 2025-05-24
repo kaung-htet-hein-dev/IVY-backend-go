@@ -2,7 +2,7 @@
 package utils
 
 import (
-	transport "KaungHtetHein116/IVY-backend/api/tansport"
+	transport "KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/pkg/constants"
 	"errors"
 	"net/http"

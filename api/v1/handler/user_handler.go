@@ -1,14 +1,17 @@
 package handler
 
 import (
-	"KaungHtetHein116/IVY-backend/internal/entity"
+	"KaungHtetHein116/IVY-backend/api/transport"
+	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/usecase"
+	"KaungHtetHein116/IVY-backend/utils"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
 type UserHandler interface {
-	RegisterUser(c echo.Context, user *entity.User) error
+	RegisterUser(c echo.Context, user *request.UserRegisterRequest) error
 }
 
 type userHandler struct {
@@ -21,6 +24,15 @@ func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
 	}
 }
 
-func (h *userHandler) RegisterUser(c echo.Context, user *entity.User) error {
-	return nil
+func (h *userHandler) RegisterUser(c echo.Context, user *request.UserRegisterRequest) error {
+	err := h.userUsecase.RegisterUser(user)
+	if err != nil {
+
+		if err == utils.ErrDuplicateEntry {
+			return transport.NewApiErrorResponse(c, http.StatusConflict, "User already exists", nil)
+		}
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to register user", err)
+	}
+
+	return transport.NewApiSuccessResponse(c, http.StatusCreated, "User registered successfully", nil)
 }

@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -27,8 +26,15 @@ func BindAndValidateDecorator[T any](fn func(echo.Context, *T) error) echo.Handl
 		}
 
 		if err := c.Validate(input); err != nil {
-			log.Println(err)
-			return err // This will be caught by our CustomHTTPErrorHandler
+			// Format validation errors and return 400
+			if verrs, ok := FormatValidationErrors(err); ok {
+				return c.JSON(http.StatusUnprocessableEntity, map[string]interface{}{
+					"message": "Validation failed",
+					"errors":  verrs,
+				})
+			}
+			// fallback for other errors
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid request format")
 		}
 
 		return fn(c, input)
