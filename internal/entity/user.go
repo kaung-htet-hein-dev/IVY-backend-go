@@ -7,13 +7,13 @@ import (
 )
 
 type User struct {
-	ID          uuid.UUID  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	Name        string     `gorm:"type:varchar(255);not null"`
-	CreatedAt   time.Time  `gorm:"not null;default:CURRENT_TIMESTAMP"`
-	UpdatedAt   time.Time  `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	ID          uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	Name        string     `json:"name" gorm:"type:varchar(255);not null"`
+	CreatedAt   time.Time  `json:"create_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
+	UpdatedAt   time.Time  `json:"update_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
 	DeletedAt   *time.Time `json:"-"`
-	Email       string     `gorm:"type:varchar(255);unique;not null"`
+	Email       string     `json:"email" gorm:"type:varchar(255);unique;not null"`
 	Password    string     `json:"-" gorm:"type:varchar(255);not null"`
-	PhoneNumber *string    `gorm:"type:varchar(20)"`
-	Role        *string    `gorm:"type:varchar(20);default:USER;check:role IN ('USER', 'ADMIN')"`
+	PhoneNumber *string    `json:"phone_number" gorm:"type:varchar(20)"`
+	Role        *string    `json:"role" gorm:"type:varchar(20);default:USER;check:role IN ('USER', 'ADMIN')"`
 }

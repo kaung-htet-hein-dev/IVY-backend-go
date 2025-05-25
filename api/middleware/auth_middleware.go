@@ -16,7 +16,7 @@ type paths struct {
 	method string
 }
 
-var excludedRoutes = []paths{
+var openRoutes = []paths{
 	{
 		path:   "/",
 		method: http.MethodGet,
@@ -28,6 +28,14 @@ var excludedRoutes = []paths{
 	{
 		path:   "/api/v1/user/register",
 		method: http.MethodPost,
+	},
+	{
+		path:   "/api/v1/branch",
+		method: http.MethodGet,
+	},
+	{
+		path:   "/api/v1/branch/:id",
+		method: http.MethodGet,
 	},
 }
 
@@ -68,15 +76,14 @@ func JWTMiddleware() echo.MiddlewareFunc {
 }
 
 func shouldAuthorize(c echo.Context) bool {
-	// requestPath := c.Path()
-	// requestMethod := c.Request().Method
+	requestPath := c.Path()
+	requestMethod := c.Request().Method
 
-	// // Check if the current route is in excluded routes
-	// for _, route := range excludedRoutes {
-	// 	if route.path == requestPath && route.method == requestMethod {
-	// 		return false
-	// 	}
-	// }
-	// return true
-	return false
+	// Check if the current route is in excluded routes
+	for _, route := range openRoutes {
+		if route.path == requestPath && route.method == requestMethod {
+			return false
+		}
+	}
+	return true
 }
