@@ -39,6 +39,7 @@ func ConnectDB() *gorm.DB {
 
 	err = db.AutoMigrate(
 		&entity.User{},
+		&entity.Branch{},
 	)
 
 	if err != nil {

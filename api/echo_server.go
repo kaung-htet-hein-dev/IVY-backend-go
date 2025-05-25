@@ -29,6 +29,7 @@ func StartServer() {
 	middleware.RegisterAuthMiddleware(e)
 
 	v1.RegisterUserRoutes(e, db)
+	v1.RegisterBranchRoutes(e, db)
 
 	port := ":" + os.Getenv("APP_PORT")
 

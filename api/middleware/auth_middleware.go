@@ -26,7 +26,7 @@ var excludedRoutes = []paths{
 		method: http.MethodPost,
 	},
 	{
-		path:   "api/v1/user/register",
+		path:   "/api/v1/user/register",
 		method: http.MethodPost,
 	},
 }
@@ -68,14 +68,15 @@ func JWTMiddleware() echo.MiddlewareFunc {
 }
 
 func shouldAuthorize(c echo.Context) bool {
-	requestPath := c.Path()
-	requestMethod := c.Request().Method
+	// requestPath := c.Path()
+	// requestMethod := c.Request().Method
 
-	// Check if the current route is in excluded routes
-	for _, route := range excludedRoutes {
-		if route.path == requestPath && route.method == requestMethod {
-			return false
-		}
-	}
-	return true
+	// // Check if the current route is in excluded routes
+	// for _, route := range excludedRoutes {
+	// 	if route.path == requestPath && route.method == requestMethod {
+	// 		return false
+	// 	}
+	// }
+	// return true
+	return false
 }

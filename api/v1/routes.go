@@ -20,3 +20,16 @@ func RegisterUserRoutes(e *echo.Echo, db *gorm.DB) {
 	userRoutes.POST("/login", utils.BindAndValidateDecorator(userHandler.LoginUser))
 	userRoutes.GET("/me", userHandler.GetMe)
 }
+
+func RegisterBranchRoutes(e *echo.Echo, db *gorm.DB) {
+	branchRepo := repository.NewBranchRepository(db)
+	branchUsecase := usecase.NewBranchUsecase(branchRepo)
+	branchHandler := handler.NewBranchHandler(branchUsecase)
+
+	branchRoutes := e.Group("/api/v1/branch")
+	branchRoutes.POST("", utils.BindAndValidateDecorator(branchHandler.CreateBranch))
+	branchRoutes.GET("", branchHandler.GetAllBranches)
+	branchRoutes.GET("/:id", branchHandler.GetBranchByID)
+	branchRoutes.PUT("/:id", utils.BindAndValidateDecorator(branchHandler.UpdateBranch))
+	branchRoutes.DELETE("/:id", branchHandler.DeleteBranch)
+}
