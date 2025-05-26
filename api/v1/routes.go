@@ -33,3 +33,16 @@ func RegisterBranchRoutes(e *echo.Echo, db *gorm.DB) {
 	branchRoutes.PUT("/:id", utils.BindAndValidateDecorator(branchHandler.UpdateBranch))
 	branchRoutes.DELETE("/:id", branchHandler.DeleteBranch)
 }
+
+func RegisterCategoryRoutes(e *echo.Echo, db *gorm.DB) {
+	categoryRepo := repository.NewCategoryRepository(db)
+	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categoryUsecase)
+
+	categoryRoutes := e.Group("/api/v1/category")
+	categoryRoutes.POST("", utils.BindAndValidateDecorator(categoryHandler.CreateCategory))
+	categoryRoutes.GET("", categoryHandler.GetAllCategories)
+	categoryRoutes.GET("/:id", categoryHandler.GetCategoryByID)
+	categoryRoutes.PUT("/:id", utils.BindAndValidateDecorator(categoryHandler.UpdateCategory))
+	categoryRoutes.DELETE("/:id", categoryHandler.DeleteCategory)
+}

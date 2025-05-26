@@ -37,6 +37,22 @@ var openRoutes = []paths{
 		path:   "/api/v1/branch/:id",
 		method: http.MethodGet,
 	},
+	{
+		path:   "/api/v1/branch/:id",
+		method: http.MethodDelete,
+	},
+	{
+		path:   "/api/v1/category",
+		method: http.MethodGet,
+	},
+	{
+		path:   "/api/v1/category/:id",
+		method: http.MethodGet,
+	},
+	{
+		path:   "/api/v1/category/:id",
+		method: http.MethodDelete,
+	},
 }
 
 func RegisterAuthMiddleware(e *echo.Echo) {

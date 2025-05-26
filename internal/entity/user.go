@@ -16,4 +16,5 @@ type User struct {
 	Password    string     `json:"-" gorm:"type:varchar(255);not null"`
 	PhoneNumber *string    `json:"phone_number" gorm:"type:varchar(20)"`
 	Role        *string    `json:"role" gorm:"type:varchar(20);default:USER;check:role IN ('USER', 'ADMIN')"`
+	Bookings    []Booking  `json:"bookings" gorm:"foreignKey:UserID"`
 }

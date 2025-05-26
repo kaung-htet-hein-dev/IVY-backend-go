@@ -40,6 +40,7 @@ func ConnectDB() *gorm.DB {
 	err = db.AutoMigrate(
 		&entity.User{},
 		&entity.Branch{},
+		&entity.Category{}, // Add Category to migrations
 	)
 
 	if err != nil {

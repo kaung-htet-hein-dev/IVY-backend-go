@@ -12,6 +12,8 @@ type Booking struct {
 	User      User      `gorm:"foreignKey:UserID"`
 	ServiceID uuid.UUID `gorm:"type:uuid;not null"`
 	Service   Service   `gorm:"foreignKey:ServiceID"`
+	BranchID  uuid.UUID `gorm:"type:uuid;not null"`
+	Branch    Branch    `gorm:"foreignKey:BranchID"`
 	StartTime time.Time `gorm:"not null"`
 	EndTime   time.Time `gorm:"not null"`
 	Status    string    `gorm:"type:varchar(20);check:status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')"`
