@@ -10,8 +10,8 @@ type Service struct {
 	ID             uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
 	Name           string    `gorm:"type:varchar(255);not null"`
 	Description    string    `gorm:"type:text"`
-	DurationMinute int       `gorm:"not null"`
-	Price          float64   `gorm:"type:decimal(10,2);not null"`
+	DurationMinute int       `gorm:"type:smallint;not null"`
+	Price          int       `gorm:"type:smallint;not null"`
 	CategoryID     uuid.UUID `gorm:"type:uuid;not null"`
 	Category       Category  `gorm:"foreignKey:CategoryID"`
 	BranchID       uuid.UUID `gorm:"type:uuid;not null"`

@@ -12,4 +12,5 @@ type Branch struct {
 	Latitude    string    `json:"latitude" gorm:"type:varchar(50)"`
 	PhoneNumber string    `json:"phone_number" gorm:"type:varchar(20)"`
 	Services    []Service `json:"services" gorm:"foreignKey:CategoryID"`
+	Bookings    []Booking `json:"bookings" gorm:"foreignKey:BranchID"`
 }
