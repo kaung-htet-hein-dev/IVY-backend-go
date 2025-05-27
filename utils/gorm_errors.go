@@ -36,6 +36,10 @@ var (
 	ErrInvalidQuery = errors.New("invalid query")
 	ErrQueryTimeout = errors.New("query timeout")
 	ErrRowScanError = errors.New("row scan error")
+
+	// Miscellaneous errors
+	ErrBranchNotFound   = fmt.Errorf("branch ID does not exist")
+	ErrCategoryNotFound = fmt.Errorf("category ID does not exist")
 )
 
 func HandleGormError(err error, entity string) error {

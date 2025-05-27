@@ -29,6 +29,7 @@ var openRoutes = []paths{
 		path:   "/api/v1/user/register",
 		method: http.MethodPost,
 	},
+
 	{
 		path:   "/api/v1/branch",
 		method: http.MethodGet,
@@ -37,10 +38,7 @@ var openRoutes = []paths{
 		path:   "/api/v1/branch/:id",
 		method: http.MethodGet,
 	},
-	{
-		path:   "/api/v1/branch/:id",
-		method: http.MethodDelete,
-	},
+
 	{
 		path:   "/api/v1/category",
 		method: http.MethodGet,
@@ -49,9 +47,14 @@ var openRoutes = []paths{
 		path:   "/api/v1/category/:id",
 		method: http.MethodGet,
 	},
+
 	{
-		path:   "/api/v1/category/:id",
-		method: http.MethodDelete,
+		path:   "/api/v1/service",
+		method: http.MethodGet,
+	},
+	{
+		path:   "/api/v1/service/:id",
+		method: http.MethodGet,
 	},
 }
 
