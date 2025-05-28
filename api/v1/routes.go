@@ -72,4 +72,6 @@ func RegisterBookingRoutes(e *echo.Echo, db *gorm.DB) {
 	bookingRoutes.GET("/:id", bookingHandler.GetBookingByID)
 	bookingRoutes.PUT("/:id", utils.BindAndValidateDecorator(bookingHandler.UpdateBooking))
 	bookingRoutes.DELETE("/:id", bookingHandler.DeleteBooking)
+
+	bookingRoutes.GET("/slots", bookingHandler.GetAvailableSlots)
 }

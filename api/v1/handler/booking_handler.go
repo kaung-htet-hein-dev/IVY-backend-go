@@ -116,3 +116,7 @@ func (h *BookingHandler) DeleteBooking(c echo.Context) error {
 
 	return transport.NewApiSuccessResponse(c, http.StatusNoContent, "Booking deleted successfully", nil)
 }
+
+func (h *BookingHandler) GetAvailableSlots(c echo.Context) error {
+	return nil
+}

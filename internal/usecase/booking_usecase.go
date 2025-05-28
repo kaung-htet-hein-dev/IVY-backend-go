@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"KaungHtetHein116/IVY-backend/api/v1/request"
@@ -30,20 +29,16 @@ func NewBookingUsecase(repo repository.BookingRepository) BookingUsecase {
 }
 
 func (u *bookingUsecase) CreateBooking(ctx context.Context, userID uuid.UUID, req *request.CreateBookingRequest) (*entity.Booking, error) {
-	if req.EndTime.Before(req.StartTime) {
-		return nil, errors.New("end time cannot be before start time")
-	}
-
 	booking := &entity.Booking{
-		ID:        uuid.New(),
-		UserID:    userID,
-		ServiceID: req.ServiceID,
-		BranchID:  req.BranchID,
-		StartTime: req.StartTime,
-		EndTime:   req.EndTime,
-		Status:    "PENDING",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ID:         uuid.New(),
+		UserID:     userID,
+		ServiceID:  req.ServiceID,
+		BranchID:   req.BranchID,
+		BookedDate: req.BookedDate,
+		BookedTime: req.BookedTime,
+		Status:     "PENDING",
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	err := u.repo.Create(ctx, booking)
