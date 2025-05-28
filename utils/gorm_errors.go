@@ -38,8 +38,10 @@ var (
 	ErrRowScanError = errors.New("row scan error")
 
 	// Miscellaneous errors
-	ErrBranchNotFound   = fmt.Errorf("branch ID does not exist")
-	ErrCategoryNotFound = fmt.Errorf("category ID does not exist")
+	ErrBranchNotFound   = errors.New("branch ID not found")
+	ErrUserNotFound     = errors.New("user ID not found")
+	ErrServiceNotFound  = errors.New("service ID not found")
+	ErrCategoryNotFound = errors.New("category ID not found")
 )
 
 func HandleGormError(err error, entity string) error {

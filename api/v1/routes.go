@@ -59,3 +59,17 @@ func RegisterServiceRoutes(e *echo.Echo, db *gorm.DB) {
 	serviceRoutes.PUT("/:id", utils.BindAndValidateDecorator(serviceHandler.UpdateService))
 	serviceRoutes.DELETE("/:id", serviceHandler.DeleteService)
 }
+
+func RegisterBookingRoutes(e *echo.Echo, db *gorm.DB) {
+	bookingRepo := repository.NewBookingRepository(db)
+	bookingUsecase := usecase.NewBookingUsecase(bookingRepo)
+	bookingHandler := handler.NewBookingHandler(bookingUsecase)
+
+	bookingRoutes := e.Group("/api/v1/booking")
+	bookingRoutes.POST("", utils.BindAndValidateDecorator(bookingHandler.CreateBooking))
+	bookingRoutes.GET("", bookingHandler.GetAllBookings)
+	bookingRoutes.GET("/me", bookingHandler.GetUserBookings)
+	bookingRoutes.GET("/:id", bookingHandler.GetBookingByID)
+	bookingRoutes.PUT("/:id", utils.BindAndValidateDecorator(bookingHandler.UpdateBooking))
+	bookingRoutes.DELETE("/:id", bookingHandler.DeleteBooking)
+}

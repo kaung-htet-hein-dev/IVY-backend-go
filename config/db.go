@@ -42,6 +42,7 @@ func ConnectDB() *gorm.DB {
 		&entity.Branch{},
 		&entity.Category{},
 		&entity.Service{},
+		&entity.Booking{},
 	)
 
 	if err != nil {

@@ -56,6 +56,15 @@ var openRoutes = []paths{
 		path:   "/api/v1/service/:id",
 		method: http.MethodGet,
 	},
+
+	{
+		path:   "/api/v1/booking",
+		method: http.MethodGet,
+	},
+	{
+		path:   "/api/v1/booking/:id",
+		method: http.MethodGet,
+	},
 }
 
 func RegisterAuthMiddleware(e *echo.Echo) {
