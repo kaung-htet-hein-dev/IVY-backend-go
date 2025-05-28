@@ -17,6 +17,7 @@ type BookingRepository interface {
 	Update(ctx context.Context, booking *entity.Booking) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	CheckSameUserBooking(ctx context.Context, userID uuid.UUID, bookedDate string, bookedTime string) error
+	GetBookingTimeSlotByDateAndBranch(ctx context.Context, branchID uuid.UUID, bookedDate string) []string
 }
 
 type bookingRepository struct {
@@ -105,3 +106,25 @@ func (r *bookingRepository) CheckSameUserBooking(ctx context.Context, userID uui
 
 	return nil
 }
+
+func (r *bookingRepository) GetBookingTimeSlotByDateAndBranch(ctx context.Context,
+	branchID uuid.UUID, bookedDate string) []string {
+
+	timeSlots := make([]string, 0)
+
+	var bookings []entity.Booking
+	err := r.db.WithContext(ctx).
+		Where("branch_id = ? AND booked_date = ?", branchID, bookedDate).
+		Find(&bookings).Error
+	if err != nil {
+		return timeSlots
+	}
+
+	for _, booking := range bookings {
+		timeSlots = append(timeSlots, booking.BookedTime)
+	}
+
+	return timeSlots
+}
+
+// same branch id, same date

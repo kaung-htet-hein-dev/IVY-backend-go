@@ -19,6 +19,7 @@ type BookingUsecase interface {
 	GetUserBookings(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	UpdateBooking(ctx context.Context, id uuid.UUID, req *request.UpdateBookingRequest) (*entity.Booking, error)
 	DeleteBooking(ctx context.Context, id uuid.UUID) error
+	GetTimeSlotsByBranchIDAndDate(ctx context.Context, branchID uuid.UUID, bookedDate string) ([]string, error)
 }
 
 type bookingUsecase struct {
@@ -93,4 +94,41 @@ func (u *bookingUsecase) UpdateBooking(ctx context.Context, id uuid.UUID, req *r
 
 func (u *bookingUsecase) DeleteBooking(ctx context.Context, id uuid.UUID) error {
 	return u.repo.Delete(ctx, id)
+}
+
+func (u *bookingUsecase) GetTimeSlotsByBranchIDAndDate(ctx context.Context, branchID uuid.UUID, bookedDate string) ([]string, error) {
+	timeSlots := make([]string, 0)
+	takenTimeSlots := u.repo.GetBookingTimeSlotByDateAndBranch(ctx, branchID, bookedDate)
+
+	if len(takenTimeSlots) == 0 {
+		return timeSlots, nil
+	}
+
+	return getAvailableTimeSlots(takenTimeSlots), nil
+}
+
+func getAvailableTimeSlots(takenTimeSlots []string) []string {
+	allSlots := []string{
+		"09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+		"11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
+		"01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
+		"03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM",
+		"05:00 PM", "05:30 PM", "06:00 PM", "06:30 PM",
+		"07:00 PM",
+	}
+
+	available := []string{}
+	for _, slot := range allSlots {
+		found := false
+		for _, taken := range takenTimeSlots {
+			if slot == taken {
+				found = true
+				break
+			}
+		}
+		if !found {
+			available = append(available, slot)
+		}
+	}
+	return available
 }

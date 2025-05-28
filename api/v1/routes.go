@@ -68,10 +68,9 @@ func RegisterBookingRoutes(e *echo.Echo, db *gorm.DB) {
 	bookingRoutes := e.Group("/api/v1/booking")
 	bookingRoutes.POST("", utils.BindAndValidateDecorator(bookingHandler.CreateBooking))
 	bookingRoutes.GET("", bookingHandler.GetAllBookings)
+	bookingRoutes.GET("/slots", bookingHandler.GetAvailableSlots)
 	bookingRoutes.GET("/me", bookingHandler.GetUserBookings)
 	bookingRoutes.GET("/:id", bookingHandler.GetBookingByID)
 	bookingRoutes.PUT("/:id", utils.BindAndValidateDecorator(bookingHandler.UpdateBooking))
 	bookingRoutes.DELETE("/:id", bookingHandler.DeleteBooking)
-
-	bookingRoutes.GET("/slots", bookingHandler.GetAvailableSlots)
 }

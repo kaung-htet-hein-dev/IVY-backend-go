@@ -124,5 +124,22 @@ func (h *BookingHandler) DeleteBooking(c echo.Context) error {
 }
 
 func (h *BookingHandler) GetAvailableSlots(c echo.Context) error {
-	return nil
+	branchID := c.QueryParam("branch_id")
+	bookedDate := c.QueryParam("booked_date")
+
+	if branchID == "" || bookedDate == "" {
+		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Branch ID and booked date are required", nil)
+	}
+
+	timeSlots, err := h.usecase.GetTimeSlotsByBranchIDAndDate(
+		c.Request().Context(),
+		uuid.MustParse(branchID),
+		bookedDate,
+	)
+
+	if err != nil {
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get available slots", err)
+	}
+
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Available slots retrieved successfully", timeSlots)
 }
