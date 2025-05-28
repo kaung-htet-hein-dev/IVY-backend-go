@@ -42,6 +42,8 @@ var (
 	ErrUserNotFound     = errors.New("user ID not found")
 	ErrServiceNotFound  = errors.New("service ID not found")
 	ErrCategoryNotFound = errors.New("category ID not found")
+
+	ErrUserHadBooking = errors.New("user already has a booking for this service at this time")
 )
 
 func HandleGormError(err error, entity string) error {

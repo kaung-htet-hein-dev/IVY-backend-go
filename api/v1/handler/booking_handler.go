@@ -30,6 +30,12 @@ func (h *BookingHandler) CreateBooking(c echo.Context, req *request.CreateBookin
 
 	booking, err := h.usecase.CreateBooking(c.Request().Context(), uid, req)
 
+	if err == utils.ErrUserHadBooking {
+		return transport.NewApiErrorResponse(c, http.StatusConflict,
+			"You already have a booking for this service at this time. If you wish to book, please cancel the first booking.",
+			err)
+	}
+
 	if errors.Is(err, utils.ErrServiceNotFound) || errors.Is(err, utils.ErrCategoryNotFound) {
 		return transport.NewApiErrorResponse(c, http.StatusNotFound, "Service or Branch not found", nil)
 	}

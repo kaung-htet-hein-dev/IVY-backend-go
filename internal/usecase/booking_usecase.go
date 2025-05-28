@@ -7,6 +7,7 @@ import (
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/internal/repository"
+	"KaungHtetHein116/IVY-backend/utils"
 
 	"github.com/google/uuid"
 )
@@ -41,7 +42,17 @@ func (u *bookingUsecase) CreateBooking(ctx context.Context, userID uuid.UUID, re
 		UpdatedAt:  time.Now(),
 	}
 
-	err := u.repo.Create(ctx, booking)
+	// Check if the user already has a booking for this service at this time
+	err := u.repo.CheckSameUserBooking(ctx, userID, req.BookedDate, req.BookedTime)
+	if err != nil {
+		if err == utils.ErrUserHadBooking {
+			return nil, utils.ErrUserHadBooking
+		}
+		return nil, err
+	}
+
+	err = u.repo.Create(ctx, booking)
+
 	if err != nil {
 		return nil, err
 	}

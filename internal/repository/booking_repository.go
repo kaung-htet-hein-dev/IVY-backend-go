@@ -16,6 +16,7 @@ type BookingRepository interface {
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	Update(ctx context.Context, booking *entity.Booking) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	CheckSameUserBooking(ctx context.Context, userID uuid.UUID, bookedDate string, bookedTime string) error
 }
 
 type bookingRepository struct {
@@ -82,5 +83,25 @@ func (r *bookingRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
+	return nil
+}
+
+func (r *bookingRepository) CheckSameUserBooking(ctx context.Context, userID uuid.UUID,
+	bookedDate string, bookedTime string) error {
+
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&entity.Booking{}).
+		Where("user_id = ? AND booked_date = ? AND booked_time = ?", userID, bookedDate, bookedTime).
+		Count(&count).Error
+
+	if err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return utils.ErrUserHadBooking
+	}
+
 	return nil
 }
