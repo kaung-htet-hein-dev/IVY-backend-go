@@ -19,7 +19,7 @@ type BookingUsecase interface {
 	GetUserBookings(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	UpdateBooking(ctx context.Context, id uuid.UUID, req *request.UpdateBookingRequest) (*entity.Booking, error)
 	DeleteBooking(ctx context.Context, id uuid.UUID) error
-	GetTimeSlotsByBranchIDAndDate(ctx context.Context, branchID uuid.UUID, bookedDate string) ([]string, error)
+	GetTimeSlotsByBranchIDAndDate(ctx context.Context, branchID uuid.UUID, bookedDate string) ([]Slot, error)
 }
 
 type bookingUsecase struct {
@@ -96,39 +96,47 @@ func (u *bookingUsecase) DeleteBooking(ctx context.Context, id uuid.UUID) error 
 	return u.repo.Delete(ctx, id)
 }
 
-func (u *bookingUsecase) GetTimeSlotsByBranchIDAndDate(ctx context.Context, branchID uuid.UUID, bookedDate string) ([]string, error) {
-	timeSlots := make([]string, 0)
+func (u *bookingUsecase) GetTimeSlotsByBranchIDAndDate(ctx context.Context, branchID uuid.UUID, bookedDate string) ([]Slot, error) {
 	takenTimeSlots := u.repo.GetBookingTimeSlotByDateAndBranch(ctx, branchID, bookedDate)
-
-	if len(takenTimeSlots) == 0 {
-		return timeSlots, nil
-	}
 
 	return getAvailableTimeSlots(takenTimeSlots), nil
 }
 
-func getAvailableTimeSlots(takenTimeSlots []string) []string {
-	allSlots := []string{
-		"09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-		"11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-		"01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
-		"03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM",
-		"05:00 PM", "05:30 PM", "06:00 PM", "06:30 PM",
-		"07:00 PM",
+type Slot struct {
+	Slot        string `json:"slot"`
+	IsAvailable bool   `json:"is_available"`
+}
+
+func getAvailableTimeSlots(takenTimeSlots []string) []Slot {
+	allSlots := map[string]int8{
+		"09:00 AM": 0,
+		"09:30 AM": 0,
+		"10:00 AM": 0,
+		"10:30 AM": 0,
+		"11:00 AM": 0,
+		"11:30 AM": 0,
+		"12:00 PM": 0,
 	}
 
-	available := []string{}
-	for _, slot := range allSlots {
-		found := false
-		for _, taken := range takenTimeSlots {
-			if slot == taken {
-				found = true
-				break
-			}
-		}
-		if !found {
-			available = append(available, slot)
+	available := make([]Slot, 0)
+
+	for _, slot := range takenTimeSlots {
+		_, exist := allSlots[slot]
+		if exist {
+			allSlots[slot] = allSlots[slot] + 1
 		}
 	}
+
+	for slot, count := range allSlots {
+		isAvailable := false
+		if count < 2 {
+			isAvailable = true
+		}
+		available = append(available, Slot{
+			Slot:        slot,
+			IsAvailable: isAvailable,
+		})
+	}
+
 	return available
 }
