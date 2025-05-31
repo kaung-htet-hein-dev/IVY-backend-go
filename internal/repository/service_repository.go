@@ -60,7 +60,9 @@ func (r *serviceRepository) Create(ctx context.Context, service *entity.Service)
 
 func (r *serviceRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Service, error) {
 	var service entity.Service
-	err := r.db.WithContext(ctx).First(&service, "id = ?", id).Error
+	err := r.db.WithContext(ctx).
+		Preload("Category").
+		First(&service, "id = ?", id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,9 @@ func (r *serviceRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 
 func (r *serviceRepository) GetAll(ctx context.Context) ([]entity.Service, error) {
 	var services []entity.Service
-	err := r.db.WithContext(ctx).Find(&services).Error
+	err := r.db.WithContext(ctx).
+		Preload("Category").
+		Find(&services).Error
 	return services, err
 }
 
