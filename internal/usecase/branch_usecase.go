@@ -13,7 +13,7 @@ import (
 type BranchUsecase interface {
 	CreateBranch(ctx context.Context, req *request.CreateBranchRequest) (*entity.Branch, error)
 	GetBranchByID(ctx context.Context, id uuid.UUID) (*entity.Branch, error)
-	GetAllBranches(ctx context.Context) ([]entity.Branch, error)
+	GetAllBranches(ctx context.Context, serviceID string) ([]entity.Branch, error)
 	UpdateBranch(ctx context.Context, id uuid.UUID, req *request.UpdateBranchRequest) (*entity.Branch, error)
 	DeleteBranch(ctx context.Context, id uuid.UUID) error
 }
@@ -43,8 +43,8 @@ func (u *branchUsecase) GetBranchByID(ctx context.Context, id uuid.UUID) (*entit
 	return u.repo.GetByID(ctx, id)
 }
 
-func (u *branchUsecase) GetAllBranches(ctx context.Context) ([]entity.Branch, error) {
-	return u.repo.GetAll(ctx)
+func (u *branchUsecase) GetAllBranches(ctx context.Context, serviceID string) ([]entity.Branch, error) {
+	return u.repo.GetAll(ctx, serviceID)
 }
 
 func (u *branchUsecase) UpdateBranch(ctx context.Context, id uuid.UUID, req *request.UpdateBranchRequest) (*entity.Branch, error) {

@@ -11,7 +11,7 @@ import (
 type BranchRepository interface {
 	Create(ctx context.Context, branch *entity.Branch) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Branch, error)
-	GetAll(ctx context.Context) ([]entity.Branch, error)
+	GetAll(ctx context.Context, serviceID string) ([]entity.Branch, error)
 	Update(ctx context.Context, branch *entity.Branch) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -37,8 +37,26 @@ func (r *branchRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.B
 	return &branch, nil
 }
 
-func (r *branchRepository) GetAll(ctx context.Context) ([]entity.Branch, error) {
+func (r *branchRepository) GetAll(ctx context.Context, serviceID string) ([]entity.Branch, error) {
 	var branches []entity.Branch
+
+	if serviceID != "" {
+		serviceIDUUID, err := uuid.Parse(serviceID)
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.db.WithContext(ctx).
+			Joins("JOIN branch_service ON branches.id = branch_service.branch_id").
+			Where("branch_service.service_id = ?", serviceIDUUID).
+			Find(&branches).Error
+
+		if err != nil {
+			return nil, err
+		}
+		return branches, nil
+	}
+
 	err := r.db.WithContext(ctx).Find(&branches).Error
 	return branches, err
 }

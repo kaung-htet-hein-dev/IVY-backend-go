@@ -43,7 +43,8 @@ func (h *BranchHandler) GetBranchByID(c echo.Context) error {
 }
 
 func (h *BranchHandler) GetAllBranches(c echo.Context) error {
-	branches, err := h.usecase.GetAllBranches(c.Request().Context())
+	serviceID := c.QueryParam("service_id")
+	branches, err := h.usecase.GetAllBranches(c.Request().Context(), serviceID)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get branches", err)
 	}
