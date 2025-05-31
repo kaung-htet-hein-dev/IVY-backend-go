@@ -11,5 +11,4 @@ type Category struct {
 	Name      string    `json:"name" gorm:"type:varchar(255);not null"`
 	CreatedAt time.Time `json:"created_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
-	Services  []Service `json:"services" gorm:"foreignKey:CategoryID"`
 }

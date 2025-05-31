@@ -27,6 +27,13 @@ func NewServiceUsecase(repo repository.ServiceRepository) ServiceUsecase {
 }
 
 func (u *serviceUsecase) CreateService(ctx context.Context, req *request.CreateServiceRequest) (*entity.Service, error) {
+	// Convert []uuid.UUID to []entity.Branch
+	var branches []entity.Branch
+	for _, branchID := range req.BranchIDs {
+
+		branches = append(branches, entity.Branch{ID: branchID})
+	}
+
 	service := &entity.Service{
 		ID:             uuid.New(),
 		Name:           req.Name,
@@ -34,10 +41,11 @@ func (u *serviceUsecase) CreateService(ctx context.Context, req *request.CreateS
 		DurationMinute: req.DurationMinute,
 		Price:          req.Price,
 		CategoryID:     req.CategoryID,
-		BranchID:       req.BranchID,
+		Branches:       branches,
 		Image:          req.Image,
 		IsActive:       req.IsActive,
 	}
+
 	err := u.repo.Create(ctx, service)
 	return service, err
 }
@@ -70,8 +78,12 @@ func (u *serviceUsecase) UpdateService(ctx context.Context, id uuid.UUID, req *r
 	if req.CategoryID != uuid.Nil {
 		service.CategoryID = req.CategoryID
 	}
-	if req.BranchID != uuid.Nil {
-		service.BranchID = req.BranchID
+	if len(req.BranchIDs) > 0 {
+		var branches []entity.Branch
+		for _, branchID := range req.BranchIDs {
+			branches = append(branches, entity.Branch{ID: branchID})
+		}
+		service.Branches = branches
 	}
 	if req.Image != "" {
 		service.Image = req.Image
