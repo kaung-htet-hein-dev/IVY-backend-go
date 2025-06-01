@@ -65,7 +65,13 @@ func (h *BookingHandler) GetBookingByID(c echo.Context) error {
 }
 
 func (h *BookingHandler) GetAllBookings(c echo.Context) error {
-	bookings, err := h.usecase.GetAllBookings(c.Request().Context())
+	userID := c.QueryParam("user_id")
+	status := c.QueryParam("status")
+
+	userUUID, _ := uuid.Parse(userID)
+
+	bookings, err := h.usecase.GetAllBookings(c.Request().Context(), userUUID, status)
+
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get bookings", err)
 	}
@@ -75,12 +81,12 @@ func (h *BookingHandler) GetAllBookings(c echo.Context) error {
 
 func (h *BookingHandler) GetUserBookings(c echo.Context) error {
 	userID := c.Get("user_id").(string)
-	uid, err := uuid.Parse(userID)
+	userUUID, err := uuid.Parse(userID)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid user ID", err)
 	}
 
-	bookings, err := h.usecase.GetUserBookings(c.Request().Context(), uid)
+	bookings, err := h.usecase.GetUserBookings(c.Request().Context(), userUUID)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get user bookings", err)
 	}
