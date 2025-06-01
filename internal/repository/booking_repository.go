@@ -12,7 +12,7 @@ import (
 type BookingRepository interface {
 	Create(ctx context.Context, booking *entity.Booking) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
-	GetAll(ctx context.Context, userUUID uuid.UUID, status string) ([]entity.Booking, error)
+	GetAll(ctx context.Context, userUUID uuid.UUID, status string, limit int, offset int) ([]entity.Booking, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	Update(ctx context.Context, booking *entity.Booking) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -57,15 +57,27 @@ func (r *bookingRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 	return &booking, nil
 }
 
-func (r *bookingRepository) GetAll(ctx context.Context, userUUID uuid.UUID, status string) ([]entity.Booking, error) {
+func (r *bookingRepository) GetAll(ctx context.Context, userUUID uuid.UUID,
+	status string, limit int, offset int) ([]entity.Booking, error) {
 	var bookings []entity.Booking
+
+	if limit <= 0 {
+		limit = 10
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
 	query := r.db.WithContext(ctx)
+	query = query.Limit(limit).Offset(offset)
+
 	if userUUID != uuid.Nil {
 		query = query.Where("user_id = ?", userUUID)
 	}
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
+
 	err := query.Find(&bookings).Error
 
 	return bookings, err
