@@ -6,6 +6,7 @@ import (
 	"KaungHtetHein116/IVY-backend/internal/usecase"
 	"KaungHtetHein116/IVY-backend/utils"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -14,6 +15,7 @@ type UserHandler interface {
 	RegisterUser(c echo.Context, user *request.UserRegisterRequest) error
 	LoginUser(c echo.Context, user *request.UserLoginRequest) error
 	GetMe(c echo.Context) error
+	Logout(c echo.Context) error
 }
 
 type userHandler struct {
@@ -45,7 +47,6 @@ func (h *userHandler) RegisterUser(c echo.Context, user *request.UserRegisterReq
 
 func (h *userHandler) LoginUser(c echo.Context, user *request.UserLoginRequest) error {
 	token, err := h.userUsecase.LoginUser(user)
-
 	if err != nil {
 		if err == utils.ErrRecordNotFound {
 			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)
@@ -57,6 +58,17 @@ func (h *userHandler) LoginUser(c echo.Context, user *request.UserLoginRequest) 
 
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to login user", err)
 	}
+
+	// Set JWT token as cookie
+	cookie := new(http.Cookie)
+	cookie.Name = "auth_token"
+	cookie.Value = token
+	cookie.Path = "/"
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	cookie.HttpOnly = true // Prevents JavaScript access
+	cookie.Secure = true   // Only sent over HTTPS
+	cookie.SameSite = http.SameSiteStrictMode
+	c.SetCookie(cookie)
 
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "User logged in successfully",
 		echo.Map{"token": token})
@@ -79,4 +91,19 @@ func (h *userHandler) GetMe(c echo.Context) error {
 	}
 
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "User data retrieved successfully", userData)
+}
+
+func (h *userHandler) Logout(c echo.Context) error {
+	// Create a cookie that expires immediately
+	cookie := new(http.Cookie)
+	cookie.Name = "auth_token"
+	cookie.Value = ""
+	cookie.Path = "/"
+	cookie.Expires = time.Now().Add(-1 * time.Hour) // Set expiration in the past
+	cookie.HttpOnly = true
+	cookie.Secure = true
+	cookie.SameSite = http.SameSiteStrictMode
+	c.SetCookie(cookie)
+
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Successfully logged out", nil)
 }

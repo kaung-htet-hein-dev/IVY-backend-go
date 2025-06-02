@@ -78,13 +78,21 @@ func JWTMiddleware() echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			authHeader := c.Request().Header.Get("Authorization")
+			// Try to get token from cookie first
+			cookie, err := c.Cookie("auth_token")
+			var tokenString string
 
-			if authHeader == "" {
-				return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrUnauthorized, nil)
+			if err == nil {
+				// Token found in cookie
+				tokenString = cookie.Value
+			} else {
+				// Try Authorization header as fallback
+				authHeader := c.Request().Header.Get("Authorization")
+				if authHeader == "" {
+					return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrUnauthorized, nil)
+				}
+				tokenString = strings.Replace(authHeader, "Bearer ", "", 1)
 			}
-
-			tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
 			token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
 				return []byte(os.Getenv("JWT_SECRET")), nil
 			})
