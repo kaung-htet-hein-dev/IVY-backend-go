@@ -105,13 +105,6 @@ func (u *userUsecase) UpdateUser(userID string, req *request.UserUpdateRequest) 
 	}
 
 	// Update only the allowed fields
-	user.Name = req.Name
-	if req.PhoneNumber != nil {
-		user.PhoneNumber = req.PhoneNumber
-	}
-	if req.Role != nil {
-		user.Role = req.Role
-	}
 
-	return u.userRepo.Update(user)
+	return u.userRepo.Update(user.ID, req)
 }

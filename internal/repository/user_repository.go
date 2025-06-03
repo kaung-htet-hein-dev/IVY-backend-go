@@ -14,7 +14,7 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*entity.User, error)
 	GetUserByID(id string) (*entity.User, error)
 	GetAllUsers() ([]*entity.User, error)
-	Update(user *entity.User) error
+	Update(id uuid.UUID, updates interface{}) error
 }
 
 type userRepository struct {
@@ -79,16 +79,6 @@ func (r *userRepository) GetAllUsers() ([]*entity.User, error) {
 	return users, nil
 }
 
-func (r *userRepository) Update(user *entity.User) error {
-	// Get the existing user first to preserve the password
-	var existingUser entity.User
-	if err := r.db.First(&existingUser, "id = ?", user.ID).Error; err != nil {
-		return utils.HandleGormError(err, "user")
-	}
-
-	// Preserve the password
-	user.Password = existingUser.Password
-
-	// Update only specific fields
-	return r.db.Model(&user).Select("name", "phone_number", "role", "updated_at").Updates(user).Error
+func (r *userRepository) Update(id uuid.UUID, updates interface{}) error {
+	return r.db.Model(&entity.User{}).Where("id = ?", id).Updates(updates).Error
 }
