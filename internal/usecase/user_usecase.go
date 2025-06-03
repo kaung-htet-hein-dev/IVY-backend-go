@@ -15,6 +15,7 @@ type UserUsecase interface {
 	LoginUser(user *request.UserLoginRequest) (string, error)
 	GetMe(userID string) (*entity.User, error)
 	GetAllUsers() ([]*entity.User, error)
+	UpdateUser(userID string, req *request.UserUpdateRequest) error
 }
 
 type userUsecase struct {
@@ -91,4 +92,26 @@ func (u *userUsecase) GetAllUsers() ([]*entity.User, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func (u *userUsecase) UpdateUser(userID string, req *request.UserUpdateRequest) error {
+	// Get existing user
+	user, err := u.userRepo.GetUserByID(userID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return utils.ErrRecordNotFound
+		}
+		return err
+	}
+
+	// Update only the allowed fields
+	user.Name = req.Name
+	if req.PhoneNumber != nil {
+		user.PhoneNumber = req.PhoneNumber
+	}
+	if req.Role != nil {
+		user.Role = req.Role
+	}
+
+	return u.userRepo.Update(user)
 }

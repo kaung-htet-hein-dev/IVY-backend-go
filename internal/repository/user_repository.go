@@ -14,6 +14,7 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*entity.User, error)
 	GetUserByID(id string) (*entity.User, error)
 	GetAllUsers() ([]*entity.User, error)
+	Update(user *entity.User) error
 }
 
 type userRepository struct {
@@ -76,4 +77,8 @@ func (r *userRepository) GetAllUsers() ([]*entity.User, error) {
 		return nil, utils.HandleGormError(err, "user")
 	}
 	return users, nil
+}
+
+func (r *userRepository) Update(user *entity.User) error {
+	return r.db.Save(user).Error
 }

@@ -12,3 +12,9 @@ type UserRegisterRequest struct {
 	PhoneNumber *string `json:"phone_number" validate:"omitempty,max=20"`
 	Role        *string `json:"role" validate:"omitempty,oneof=USER ADMIN"`
 }
+
+type UserUpdateRequest struct {
+	Name        string  `json:"name" validate:"required,min=3,max=255"`
+	PhoneNumber *string `json:"phone_number" validate:"omitempty,max=20"`
+	Role        *string `json:"role" validate:"omitempty,oneof=USER ADMIN"`
+}

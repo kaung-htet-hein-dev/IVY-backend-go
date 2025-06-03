@@ -17,6 +17,7 @@ type UserHandler interface {
 	GetMe(c echo.Context) error
 	Logout(c echo.Context) error
 	GetAllUsers(c echo.Context) error
+	UpdateUser(c echo.Context, req *request.UserUpdateRequest) error
 }
 
 type userHandler struct {
@@ -116,4 +117,40 @@ func (h *userHandler) GetAllUsers(c echo.Context) error {
 	}
 
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "Users retrieved successfully", users)
+}
+
+func (h *userHandler) UpdateUser(c echo.Context, req *request.UserUpdateRequest) error {
+	// Get the ID of the user to update
+	userID := c.Param("id")
+	if userID == "" {
+		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "User ID is required", nil)
+	}
+
+	// Get the current user's ID from the context
+	currentUserID := c.Get("user_id").(string)
+
+	// If trying to update someone else's profile
+	if currentUserID != userID {
+		// Check if current user is admin
+		currentUser, err := h.userUsecase.GetMe(currentUserID)
+		if err != nil {
+			return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to verify user permissions", err)
+		}
+
+		// Only admins can update other users
+		if currentUser.Role == nil || *currentUser.Role != "ADMIN" {
+			return transport.NewApiErrorResponse(c, http.StatusForbidden, "Only admins can update other users' profiles", nil)
+		}
+	}
+
+	// Proceed with update
+	err := h.userUsecase.UpdateUser(userID, req)
+	if err != nil {
+		if err == utils.ErrRecordNotFound {
+			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)
+		}
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to update user", err)
+	}
+
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "User updated successfully", nil)
 }

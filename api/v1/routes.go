@@ -21,6 +21,7 @@ func RegisterUserRoutes(e *echo.Echo, db *gorm.DB) {
 	userRoutes.POST("/login", utils.BindAndValidateDecorator(userHandler.LoginUser))
 	userRoutes.GET("/me", userHandler.GetMe)
 	userRoutes.POST("/logout", userHandler.Logout)
+	userRoutes.PUT("/:id", utils.BindAndValidateDecorator(userHandler.UpdateUser))
 }
 
 func RegisterBranchRoutes(e *echo.Echo, db *gorm.DB) {
