@@ -16,6 +16,7 @@ type UserHandler interface {
 	LoginUser(c echo.Context, user *request.UserLoginRequest) error
 	GetMe(c echo.Context) error
 	Logout(c echo.Context) error
+	GetAllUsers(c echo.Context) error
 }
 
 type userHandler struct {
@@ -106,4 +107,13 @@ func (h *userHandler) Logout(c echo.Context) error {
 	c.SetCookie(cookie)
 
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "Successfully logged out", nil)
+}
+
+func (h *userHandler) GetAllUsers(c echo.Context) error {
+	users, err := h.userUsecase.GetAllUsers()
+	if err != nil {
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve users", err)
+	}
+
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Users retrieved successfully", users)
 }

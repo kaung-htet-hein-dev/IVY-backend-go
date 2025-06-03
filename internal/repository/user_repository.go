@@ -13,6 +13,7 @@ type UserRepository interface {
 	IsUserExist(email string) (bool, error)
 	GetUserByEmail(email string) (*entity.User, error)
 	GetUserByID(id string) (*entity.User, error)
+	GetAllUsers() ([]*entity.User, error)
 }
 
 type userRepository struct {
@@ -67,4 +68,12 @@ func (r *userRepository) GetUserByID(id string) (*entity.User, error) {
 		return nil, utils.HandleGormError(err, "user")
 	}
 	return &user, nil
+}
+
+func (r *userRepository) GetAllUsers() ([]*entity.User, error) {
+	var users []*entity.User
+	if err := r.db.Omit("Password", "DeletedAt").Find(&users).Error; err != nil {
+		return nil, utils.HandleGormError(err, "user")
+	}
+	return users, nil
 }

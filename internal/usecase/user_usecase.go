@@ -14,6 +14,7 @@ type UserUsecase interface {
 	RegisterUser(user *request.UserRegisterRequest) error
 	LoginUser(user *request.UserLoginRequest) (string, error)
 	GetMe(userID string) (*entity.User, error)
+	GetAllUsers() ([]*entity.User, error)
 }
 
 type userUsecase struct {
@@ -82,4 +83,12 @@ func (u *userUsecase) GetMe(userID string) (*entity.User, error) {
 		return nil, err
 	}
 	return userData, nil
+}
+
+func (u *userUsecase) GetAllUsers() ([]*entity.User, error) {
+	users, err := u.userRepo.GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

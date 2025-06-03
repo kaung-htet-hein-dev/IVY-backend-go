@@ -16,6 +16,7 @@ func RegisterUserRoutes(e *echo.Echo, db *gorm.DB) {
 	userHandler := handler.NewUserHandler(userUsecase)
 
 	userRoutes := e.Group("/api/v1/user")
+	userRoutes.GET("", userHandler.GetAllUsers)
 	userRoutes.POST("/register", utils.BindAndValidateDecorator(userHandler.RegisterUser))
 	userRoutes.POST("/login", utils.BindAndValidateDecorator(userHandler.LoginUser))
 	userRoutes.GET("/me", userHandler.GetMe)
