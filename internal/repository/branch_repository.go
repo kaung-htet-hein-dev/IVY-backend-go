@@ -12,7 +12,7 @@ type BranchRepository interface {
 	Create(ctx context.Context, branch *entity.Branch) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Branch, error)
 	GetAll(ctx context.Context, serviceID string) ([]entity.Branch, error)
-	Update(ctx context.Context, branch *entity.Branch) error
+	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -61,8 +61,8 @@ func (r *branchRepository) GetAll(ctx context.Context, serviceID string) ([]enti
 	return branches, err
 }
 
-func (r *branchRepository) Update(ctx context.Context, branch *entity.Branch) error {
-	return r.db.WithContext(ctx).Save(branch).Error
+func (r *branchRepository) Update(ctx context.Context, id uuid.UUID, updates interface{}) error {
+	return r.db.WithContext(ctx).Model(&entity.Branch{}).Where("id = ?", id).Updates(updates).Error
 }
 
 func (r *branchRepository) Delete(ctx context.Context, id uuid.UUID) error {

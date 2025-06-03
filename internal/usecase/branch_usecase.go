@@ -48,27 +48,19 @@ func (u *branchUsecase) GetAllBranches(ctx context.Context, serviceID string) ([
 }
 
 func (u *branchUsecase) UpdateBranch(ctx context.Context, id uuid.UUID, req *request.UpdateBranchRequest) (*entity.Branch, error) {
-	branch, err := u.repo.GetByID(ctx, id)
+	// Check if branch exists
+	_, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	if req.Name != "" {
-		branch.Name = req.Name
+
+	// Update with request data
+	if err := u.repo.Update(ctx, id, req); err != nil {
+		return nil, err
 	}
-	if req.Location != "" {
-		branch.Location = req.Location
-	}
-	if req.Longitude != "" {
-		branch.Longitude = req.Longitude
-	}
-	if req.Latitude != "" {
-		branch.Latitude = req.Latitude
-	}
-	if req.PhoneNumber != "" {
-		branch.PhoneNumber = req.PhoneNumber
-	}
-	err = u.repo.Update(ctx, branch)
-	return branch, err
+
+	// Get updated branch
+	return u.repo.GetByID(ctx, id)
 }
 
 func (u *branchUsecase) DeleteBranch(ctx context.Context, id uuid.UUID) error {

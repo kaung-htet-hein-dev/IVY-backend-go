@@ -80,5 +80,15 @@ func (r *userRepository) GetAllUsers() ([]*entity.User, error) {
 }
 
 func (r *userRepository) Update(user *entity.User) error {
-	return r.db.Save(user).Error
+	// Get the existing user first to preserve the password
+	var existingUser entity.User
+	if err := r.db.First(&existingUser, "id = ?", user.ID).Error; err != nil {
+		return utils.HandleGormError(err, "user")
+	}
+
+	// Preserve the password
+	user.Password = existingUser.Password
+
+	// Update only specific fields
+	return r.db.Model(&user).Select("name", "phone_number", "role", "updated_at").Updates(user).Error
 }
