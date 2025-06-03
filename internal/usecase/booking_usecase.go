@@ -74,22 +74,19 @@ func (u *bookingUsecase) GetUserBookings(ctx context.Context, userID uuid.UUID) 
 }
 
 func (u *bookingUsecase) UpdateBooking(ctx context.Context, id uuid.UUID, req *request.UpdateBookingRequest) (*entity.Booking, error) {
-	booking, err := u.repo.GetByID(ctx, id)
+	// Check if booking exists
+	_, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	if req.Status != "" {
-		booking.Status = req.Status
-	}
-	booking.UpdatedAt = time.Now()
-
-	err = u.repo.Update(ctx, booking)
-	if err != nil {
+	// Update with request data
+	if err := u.repo.Update(ctx, id, req); err != nil {
 		return nil, err
 	}
 
-	return booking, nil
+	// Get updated booking
+	return u.repo.GetByID(ctx, id)
 }
 
 func (u *bookingUsecase) DeleteBooking(ctx context.Context, id uuid.UUID) error {

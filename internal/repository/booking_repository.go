@@ -14,7 +14,7 @@ type BookingRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
 	GetAll(ctx context.Context, userUUID uuid.UUID, status string, limit int, offset int) ([]entity.Booking, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
-	Update(ctx context.Context, booking *entity.Booking) error
+	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	CheckSameUserBooking(ctx context.Context, userID uuid.UUID, bookedDate string, bookedTime string) error
 	GetBookingTimeSlotByDateAndBranch(ctx context.Context, branchID uuid.UUID, bookedDate string) []string
@@ -91,8 +91,8 @@ func (r *bookingRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (
 	return bookings, err
 }
 
-func (r *bookingRepository) Update(ctx context.Context, booking *entity.Booking) error {
-	return r.db.WithContext(ctx).Save(booking).Error
+func (r *bookingRepository) Update(ctx context.Context, id uuid.UUID, updates interface{}) error {
+	return r.db.WithContext(ctx).Model(&entity.Booking{}).Where("id = ?", id).Updates(updates).Error
 }
 
 func (r *bookingRepository) Delete(ctx context.Context, id uuid.UUID) error {
