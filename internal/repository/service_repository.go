@@ -73,6 +73,7 @@ func (r *serviceRepository) GetAll(ctx context.Context) ([]entity.Service, error
 	var services []entity.Service
 	err := r.db.WithContext(ctx).
 		Preload("Category").
+		Preload("Branches").
 		Find(&services).Error
 	return services, err
 }

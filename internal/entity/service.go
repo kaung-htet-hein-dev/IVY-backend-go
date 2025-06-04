@@ -18,5 +18,5 @@ type Service struct {
 	IsActive       bool      `json:"is_active" gorm:"default:true"`
 	CreatedAt      time.Time `json:"created_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
 	UpdatedAt      time.Time `json:"updated_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
-	Branches       []Branch  `json:"-" gorm:"many2many:branch_service;"`
+	Branches       []Branch  `json:"branches" gorm:"many2many:branch_service;"`
 }
