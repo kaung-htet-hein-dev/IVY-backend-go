@@ -108,14 +108,40 @@ func (r *serviceRepository) Update(ctx context.Context, service *entity.Service)
 }
 
 func (r *serviceRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	result := r.db.WithContext(ctx).Delete(&entity.Service{}, "id = ?", id)
-	if result.Error != nil {
-		return result.Error
+	// Start a transaction
+	tx := r.db.WithContext(ctx).Begin()
+	if err := tx.Error; err != nil {
+		return err
 	}
-	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Get the service first
+	service := &entity.Service{}
+	if err := tx.First(service, "id = ?", id).Error; err != nil {
+		tx.Rollback()
+		if err == gorm.ErrRecordNotFound {
+			return err
+		}
+		return err
 	}
-	return nil
+
+	// Clear the associations in branch_service table
+	if err := tx.Model(service).Association("Branches").Clear(); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Delete the service
+	if err := tx.Delete(service).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (r *serviceRepository) CheckBranchCategoryExist(ctx context.Context, service *entity.Service) error {
