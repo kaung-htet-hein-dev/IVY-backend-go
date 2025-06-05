@@ -78,7 +78,7 @@ func (r *bookingRepository) GetAll(ctx context.Context, userUUID uuid.UUID,
 		query = query.Where("status = ?", status)
 	}
 
-	err := query.Find(&bookings).Error
+	err := query.Preload("Service").Preload("Branch").Find(&bookings).Error
 
 	return bookings, err
 }

@@ -16,4 +16,6 @@ type Booking struct {
 	Status     string    `json:"status" gorm:"type:varchar(20);default:PENDING;check:status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')"`
 	CreatedAt  time.Time `json:"created_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
 	UpdatedAt  time.Time `json:"updated_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
+	Service    Service   `json:"service" gorm:"foreignKey:ServiceID"`
+	Branch     Branch    `json:"branch" gorm:"foreignKey:BranchID"`
 }
