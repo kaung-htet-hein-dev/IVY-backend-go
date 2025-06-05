@@ -22,5 +22,5 @@ type UpdateServiceRequest struct {
 	BranchID       uuid.UUID   `json:"branch_id"`
 	Image          string      `json:"image"`
 	IsActive       bool        `json:"is_active" validate:"boolean"`
-	BranchIDs      []uuid.UUID `json:"branch_ids" validate:"required,dive,uuid"`
+	BranchIDs      []uuid.UUID `json:"branch_ids" validate:"omitempty,dive,uuid"`
 }

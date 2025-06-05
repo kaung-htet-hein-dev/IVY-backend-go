@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/entity"
@@ -59,39 +60,61 @@ func (u *serviceUsecase) GetAllServices(ctx context.Context) ([]entity.Service, 
 }
 
 func (u *serviceUsecase) UpdateService(ctx context.Context, id uuid.UUID, req *request.UpdateServiceRequest) (*entity.Service, error) {
-	service, err := u.repo.GetByID(ctx, id)
+	// Check if service exists
+	_, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+
+	// Create updates map with only provided fields
+	updates := make(map[string]interface{})
+
+	// Get raw JSON data from request to check which fields were actually included
+	reqJSON := make(map[string]interface{})
+	jsonBytes, _ := json.Marshal(req)
+	json.Unmarshal(jsonBytes, &reqJSON)
+
 	if req.Name != "" {
-		service.Name = req.Name
+		updates["name"] = req.Name
 	}
 	if req.Description != "" {
-		service.Description = req.Description
+		updates["description"] = req.Description
 	}
-	if req.DurationMinute != 0 {
-		service.DurationMinute = req.DurationMinute
+	if req.DurationMinute > 0 {
+		updates["duration_minute"] = req.DurationMinute
 	}
-	if req.Price != 0 {
-		service.Price = req.Price
+	if req.Price >= 0 { // Allow zero price
+		updates["price"] = req.Price
 	}
 	if req.CategoryID != uuid.Nil {
-		service.CategoryID = req.CategoryID
-	}
-	if len(req.BranchIDs) > 0 {
-		var branches []entity.Branch
-		for _, branchID := range req.BranchIDs {
-			branches = append(branches, entity.Branch{ID: branchID})
-		}
-		service.Branches = branches
+		updates["category_id"] = req.CategoryID
 	}
 	if req.Image != "" {
-		service.Image = req.Image
+		updates["image"] = req.Image
 	}
-	service.IsActive = req.IsActive
 
-	err = u.repo.Update(ctx, service)
-	return service, err
+	// Only include is_active if it was in the request
+	if _, ok := reqJSON["is_active"]; ok {
+		updates["is_active"] = req.IsActive
+	}
+
+	// Convert branch IDs to Branch entities if provided
+	var branches []entity.Branch
+	if len(req.BranchIDs) > 0 {
+		branches = make([]entity.Branch, len(req.BranchIDs))
+		for i, branchID := range req.BranchIDs {
+			branches[i] = entity.Branch{ID: branchID}
+		}
+	}
+
+	// Update the service with only the provided fields
+	err = u.repo.Update(ctx, id, updates, branches)
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch and return the updated service
+	return u.repo.GetByID(ctx, id)
 }
 
 func (u *serviceUsecase) DeleteService(ctx context.Context, id uuid.UUID) error {

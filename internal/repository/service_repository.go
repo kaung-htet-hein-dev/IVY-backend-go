@@ -13,7 +13,7 @@ type ServiceRepository interface {
 	Create(ctx context.Context, service *entity.Service) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Service, error)
 	GetAll(ctx context.Context) ([]entity.Service, error)
-	Update(ctx context.Context, service *entity.Service) error
+	Update(ctx context.Context, id uuid.UUID, updates map[string]interface{}, branches []entity.Branch) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	CheckBranchCategoryExist(ctx context.Context, service *entity.Service) error
 }
@@ -78,12 +78,7 @@ func (r *serviceRepository) GetAll(ctx context.Context) ([]entity.Service, error
 	return services, err
 }
 
-func (r *serviceRepository) Update(ctx context.Context, service *entity.Service) error {
-	err := r.CheckBranchCategoryExist(ctx, service)
-	if err != nil {
-		return err
-	}
-
+func (r *serviceRepository) Update(ctx context.Context, id uuid.UUID, updates map[string]interface{}, branches []entity.Branch) error {
 	// Start a transaction
 	tx := r.db.WithContext(ctx).Begin()
 	if err := tx.Error; err != nil {
@@ -94,15 +89,55 @@ func (r *serviceRepository) Update(ctx context.Context, service *entity.Service)
 			tx.Rollback()
 		}
 	}()
-	// Update the service
-	if err := tx.Save(service).Error; err != nil {
+
+	// Get existing service to check if it exists
+	var service entity.Service
+	if err := tx.First(&service, "id = ?", id).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	// Update the branches associated with the service
-	if err := tx.Model(service).Association("Branches").Replace(service.Branches); err != nil {
+
+	// Check if category exists if categoryID is being updated
+	if categoryID, ok := updates["category_id"].(uuid.UUID); ok {
+		var category entity.Category
+		if err := tx.First(&category, "id = ?", categoryID).Error; err != nil {
+			tx.Rollback()
+			if err == gorm.ErrRecordNotFound {
+				return utils.ErrCategoryNotFound
+			}
+			return err
+		}
+	}
+
+	// Update the service with the provided fields
+	if err := tx.Model(&entity.Service{}).Where("id = ?", id).Updates(updates).Error; err != nil {
 		tx.Rollback()
 		return err
+	}
+
+	// Update branches if provided
+	if branches != nil {
+		// Check if all branch IDs exist
+		branchIDs := make([]uuid.UUID, len(branches))
+		for i, branch := range branches {
+			branchIDs[i] = branch.ID
+		}
+
+		var count int64
+		if err := tx.Model(&entity.Branch{}).Where("id IN ?", branchIDs).Count(&count).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+		if int(count) != len(branchIDs) {
+			tx.Rollback()
+			return utils.ErrBranchNotFound
+		}
+
+		// Update the branches
+		if err := tx.Model(&entity.Service{ID: id}).Association("Branches").Replace(branches); err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit().Error
