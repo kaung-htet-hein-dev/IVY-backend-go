@@ -46,3 +46,22 @@ func NewUserQueryParams() *UserQueryParams {
 		},
 	}
 }
+
+// branch
+
+type BranchQueryParams struct {
+	BaseQueryParams
+	Name        string `query:"name"`
+	Location    string `query:"location"`
+	PhoneNumber string `query:"phone_number"`
+	ServiceID   string `query:"service_id"`
+}
+
+func NewBranchQueryParams() *BranchQueryParams {
+	return &BranchQueryParams{
+		BaseQueryParams: BaseQueryParams{
+			Limit:  10,
+			Offset: 0,
+		},
+	}
+}

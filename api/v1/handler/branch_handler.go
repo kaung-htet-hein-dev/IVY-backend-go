@@ -2,6 +2,7 @@ package handler
 
 import (
 	"KaungHtetHein116/IVY-backend/api/transport"
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/usecase"
 	"net/http"
@@ -43,8 +44,10 @@ func (h *BranchHandler) GetBranchByID(c echo.Context) error {
 }
 
 func (h *BranchHandler) GetAllBranches(c echo.Context) error {
-	serviceID := c.QueryParam("service_id")
-	branches, err := h.usecase.GetAllBranches(c.Request().Context(), serviceID)
+	filter := params.NewBranchQueryParams()
+	err := c.Bind(filter)
+
+	branches, err := h.usecase.GetAllBranches(c.Request().Context(), filter)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get branches", err)
 	}
