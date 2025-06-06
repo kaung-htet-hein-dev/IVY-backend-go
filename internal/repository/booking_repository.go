@@ -12,7 +12,7 @@ import (
 type BookingRepository interface {
 	Create(ctx context.Context, booking *entity.Booking) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
-	GetAll(ctx context.Context, userUUID uuid.UUID, status string, limit int, offset int) ([]entity.Booking, error)
+	GetAll(ctx context.Context, userUUID uuid.UUID, status string, limit int, offset int, bookedDate string) ([]entity.Booking, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -58,7 +58,7 @@ func (r *bookingRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 }
 
 func (r *bookingRepository) GetAll(ctx context.Context, userUUID uuid.UUID,
-	status string, limit int, offset int) ([]entity.Booking, error) {
+	status string, limit int, offset int, bookedDate string) ([]entity.Booking, error) {
 	var bookings []entity.Booking
 
 	if limit <= 0 {
@@ -76,6 +76,9 @@ func (r *bookingRepository) GetAll(ctx context.Context, userUUID uuid.UUID,
 	}
 	if status != "" {
 		query = query.Where("status = ?", status)
+	}
+	if bookedDate != "" {
+		query = query.Where("booked_date = ?", bookedDate)
 	}
 
 	err := query.Preload("Service").Preload("Branch").Find(&bookings).Error

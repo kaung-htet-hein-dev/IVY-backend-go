@@ -69,6 +69,7 @@ func (h *BookingHandler) GetAllBookings(c echo.Context) error {
 	status := c.QueryParam("status")
 	limit := c.QueryParam("limit")
 	offset := c.QueryParam("offset")
+	bookedDate := c.QueryParam("booked_date")
 
 	userUUID, _ := uuid.Parse(userID)
 
@@ -76,7 +77,7 @@ func (h *BookingHandler) GetAllBookings(c echo.Context) error {
 	offsetInt, _ := utils.ParseStringToInt(offset)
 
 	bookings, err := h.usecase.GetAllBookings(c.Request().Context(), userUUID,
-		status, limitInt, offsetInt)
+		status, limitInt, offsetInt, bookedDate)
 
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get bookings", err)
