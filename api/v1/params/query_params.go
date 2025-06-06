@@ -7,6 +7,7 @@ type BaseQueryParams struct {
 	SortOrder string `query:"sort_order"`
 }
 
+// service
 type ServiceQueryParams struct {
 	BaseQueryParams
 	UserID     string `query:"user_id"`
@@ -19,6 +20,26 @@ type ServiceQueryParams struct {
 
 func NewServiceQueryParams() *ServiceQueryParams {
 	return &ServiceQueryParams{
+		BaseQueryParams: BaseQueryParams{
+			Limit:  10,
+			Offset: 0,
+		},
+	}
+}
+
+// user
+
+type UserQueryParams struct {
+	BaseQueryParams
+	Name        string `query:"name"`
+	Email       string `query:"email"`
+	Password    string `query:"password"`
+	PhoneNumber string `query:"phone_number"`
+	Role        string `query:"role"`
+}
+
+func NewUserQueryParams() *UserQueryParams {
+	return &UserQueryParams{
 		BaseQueryParams: BaseQueryParams{
 			Limit:  10,
 			Offset: 0,

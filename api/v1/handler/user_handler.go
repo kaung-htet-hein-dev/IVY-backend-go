@@ -2,6 +2,7 @@ package handler
 
 import (
 	"KaungHtetHein116/IVY-backend/api/transport"
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/usecase"
 	"KaungHtetHein116/IVY-backend/utils"
@@ -111,7 +112,14 @@ func (h *userHandler) Logout(c echo.Context) error {
 }
 
 func (h *userHandler) GetAllUsers(c echo.Context) error {
-	users, err := h.userUsecase.GetAllUsers()
+	filter := params.NewUserQueryParams()
+	err := c.Bind(filter)
+
+	if err != nil {
+		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
+	}
+
+	users, err := h.userUsecase.GetAllUsers(c.Request().Context(), filter)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve users", err)
 	}

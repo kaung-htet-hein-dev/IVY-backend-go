@@ -19,6 +19,7 @@ type BookingRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	CheckSameUserBooking(ctx context.Context, userID uuid.UUID, bookedDate string, bookedTime string) error
 	GetBookingTimeSlotByDateAndBranch(ctx context.Context, branchID uuid.UUID, bookedDate string) []string
+	BuildQuery(ctx context.Context, params *params.ServiceQueryParams, preloads ...string) *gorm.DB
 }
 
 type bookingRepository struct {
@@ -61,7 +62,7 @@ func (r *bookingRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 func (r *bookingRepository) GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Booking, error) {
 	var bookings []entity.Booking
 
-	query := r.BuildQuery(r.db, ctx, filter, "Service", "Branch")
+	query := r.BuildQuery(ctx, filter, "Service", "Branch")
 	err := query.Find(&bookings).Error
 	return bookings, err
 }
@@ -129,8 +130,8 @@ func (r *bookingRepository) GetBookingTimeSlotByDateAndBranch(ctx context.Contex
 	return timeSlots
 }
 
-func (r *bookingRepository) BuildQuery(db *gorm.DB, ctx context.Context, params *params.ServiceQueryParams, preloads ...string) *gorm.DB {
-	builder := utils.NewQueryBuilder(db, ctx)
+func (r *bookingRepository) BuildQuery(ctx context.Context, params *params.ServiceQueryParams, preloads ...string) *gorm.DB {
+	builder := utils.NewQueryBuilder(r.db, ctx)
 
 	// Apply UUID filters
 	builder.ApplyUUIDFilter("user_id", params.UserID).

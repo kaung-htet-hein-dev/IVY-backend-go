@@ -1,10 +1,12 @@
 package usecase
 
 import (
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/internal/repository"
 	"KaungHtetHein116/IVY-backend/utils"
+	"context"
 	"errors"
 
 	"gorm.io/gorm"
@@ -14,7 +16,7 @@ type UserUsecase interface {
 	RegisterUser(user *request.UserRegisterRequest) error
 	LoginUser(user *request.UserLoginRequest) (string, error)
 	GetMe(userID string) (*entity.User, error)
-	GetAllUsers() ([]*entity.User, error)
+	GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, error)
 	UpdateUser(userID string, req *request.UserUpdateRequest) error
 }
 
@@ -86,8 +88,8 @@ func (u *userUsecase) GetMe(userID string) (*entity.User, error) {
 	return userData, nil
 }
 
-func (u *userUsecase) GetAllUsers() ([]*entity.User, error) {
-	users, err := u.userRepo.GetAllUsers()
+func (u *userUsecase) GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, error) {
+	users, err := u.userRepo.GetAllUsers(c, filter)
 	if err != nil {
 		return nil, err
 	}
