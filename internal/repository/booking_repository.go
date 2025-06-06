@@ -12,7 +12,7 @@ import (
 type BookingRepository interface {
 	Create(ctx context.Context, booking *entity.Booking) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
-	GetAll(ctx context.Context, userUUID uuid.UUID, status string, limit int, offset int, bookedDate string) ([]entity.Booking, error)
+	GetAll(ctx context.Context, filter *BookingQueryFilter) ([]entity.Booking, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -57,32 +57,36 @@ func (r *bookingRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 	return &booking, nil
 }
 
-func (r *bookingRepository) GetAll(ctx context.Context, userUUID uuid.UUID,
-	status string, limit int, offset int, bookedDate string) ([]entity.Booking, error) {
+func (r *bookingRepository) GetAll(ctx context.Context, filter *BookingQueryFilter) ([]entity.Booking, error) {
 	var bookings []entity.Booking
 
-	if limit <= 0 {
-		limit = 10
-	}
-	if offset < 0 {
-		offset = 0
-	}
-
 	query := r.db.WithContext(ctx)
-	query = query.Limit(limit).Offset(offset)
 
-	if userUUID != uuid.Nil {
-		query = query.Where("user_id = ?", userUUID)
+	// Apply filters
+	if filter.UserID != uuid.Nil {
+		query = query.Where("user_id = ?", filter.UserID)
 	}
-	if status != "" {
-		query = query.Where("status = ?", status)
+	if filter.Status != "" {
+		query = query.Where("status = ?", filter.Status)
 	}
-	if bookedDate != "" {
-		query = query.Where("booked_date = ?", bookedDate)
+	if filter.BookedDate != "" {
+		query = query.Where("booked_date = ?", filter.BookedDate)
 	}
 
-	err := query.Preload("Service").Preload("Branch").Find(&bookings).Error
+	// Apply pagination
+	if filter.Limit <= 0 {
+		filter.Limit = 10
+	}
+	if filter.Offset < 0 {
+		filter.Offset = 0
+	}
 
+	query = query.Limit(filter.Limit).Offset(filter.Offset)
+
+	// Load relationships
+	query = query.Preload("Service").Preload("Branch")
+
+	err := query.Find(&bookings).Error
 	return bookings, err
 }
 
