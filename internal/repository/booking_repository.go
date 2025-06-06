@@ -61,53 +61,8 @@ func (r *bookingRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 func (r *bookingRepository) GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Booking, error) {
 	var bookings []entity.Booking
 
-	query := r.db.WithContext(ctx)
-
-	// Apply filters
-	if filter.UserID != "" {
-		userUUID, err := uuid.Parse(filter.UserID)
-		if err == nil && userUUID != uuid.Nil {
-			query = query.Where("user_id = ?", userUUID)
-		}
-	}
-
-	if filter.Status != "" {
-		query = query.Where("status = ?", filter.Status)
-	}
-	if filter.BookedDate != "" {
-		query = query.Where("booked_date = ?", filter.BookedDate)
-	}
-	if filter.BookedTime != "" {
-		query = query.Where("booked_time = ?", filter.BookedTime)
-	}
-	if filter.BranchID != "" {
-		branchUUID, err := uuid.Parse(filter.BranchID)
-		if err == nil && branchUUID != uuid.Nil {
-			query = query.Where("branch_id = ?", branchUUID)
-		}
-	}
-	if filter.CategoryID != "" {
-		categoryUUID, err := uuid.Parse(filter.CategoryID)
-		if err == nil && categoryUUID != uuid.Nil {
-			query = query.Where("category_id = ?", categoryUUID)
-		}
-	}
-	if filter.SortBy != "" {
-		sortOrder := "ASC"
-		if filter.SortOrder == "desc" {
-			sortOrder = "DESC"
-		}
-		query = query.Order(filter.SortBy + " " + sortOrder)
-	} else {
-		query = query.Order("created_at DESC")
-	}
-
-	query = query.Limit(filter.Limit).Offset(filter.Offset)
-
-	query = query.Preload("Service").Preload("Branch")
-
+	query := r.BuildQuery(r.db, ctx, filter, "Service", "Branch")
 	err := query.Find(&bookings).Error
-
 	return bookings, err
 }
 
@@ -174,4 +129,31 @@ func (r *bookingRepository) GetBookingTimeSlotByDateAndBranch(ctx context.Contex
 	return timeSlots
 }
 
-// same branch id, same date
+func (r *bookingRepository) BuildQuery(db *gorm.DB, ctx context.Context, params *params.ServiceQueryParams, preloads ...string) *gorm.DB {
+	builder := utils.NewQueryBuilder(db, ctx)
+
+	// Apply UUID filters
+	builder.ApplyUUIDFilter("user_id", params.UserID).
+		ApplyUUIDFilter("branch_id", params.BranchID).
+		ApplyUUIDFilter("category_id", params.CategoryID)
+
+	// Apply string filters
+	builder.ApplyStringFilters(map[string]string{
+		"status":      params.Status,
+		"booked_date": params.BookedDate,
+		"booked_time": params.BookedTime,
+	})
+
+	// Apply sorting
+	if params.SortBy != "" {
+		builder.ApplySorting(params.SortBy, params.SortOrder)
+	} else {
+		builder.ApplySorting("created_at", "desc")
+	}
+
+	// Apply pagination and preloads
+	builder.ApplyPagination(params.Limit, params.Offset).
+		ApplyPreloads(preloads...)
+
+	return builder.Build()
+}
