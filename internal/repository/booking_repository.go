@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
 	"context"
@@ -12,7 +13,7 @@ import (
 type BookingRepository interface {
 	Create(ctx context.Context, booking *entity.Booking) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
-	GetAll(ctx context.Context, filter *BookingQueryFilter) ([]entity.Booking, error)
+	GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Booking, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -57,36 +58,56 @@ func (r *bookingRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 	return &booking, nil
 }
 
-func (r *bookingRepository) GetAll(ctx context.Context, filter *BookingQueryFilter) ([]entity.Booking, error) {
+func (r *bookingRepository) GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Booking, error) {
 	var bookings []entity.Booking
 
 	query := r.db.WithContext(ctx)
 
 	// Apply filters
-	if filter.UserID != uuid.Nil {
-		query = query.Where("user_id = ?", filter.UserID)
+	if filter.UserID != "" {
+		userUUID, err := uuid.Parse(filter.UserID)
+		if err == nil && userUUID != uuid.Nil {
+			query = query.Where("user_id = ?", userUUID)
+		}
 	}
+
 	if filter.Status != "" {
 		query = query.Where("status = ?", filter.Status)
 	}
 	if filter.BookedDate != "" {
 		query = query.Where("booked_date = ?", filter.BookedDate)
 	}
-
-	// Apply pagination
-	if filter.Limit <= 0 {
-		filter.Limit = 10
+	if filter.BookedTime != "" {
+		query = query.Where("booked_time = ?", filter.BookedTime)
 	}
-	if filter.Offset < 0 {
-		filter.Offset = 0
+	if filter.BranchID != "" {
+		branchUUID, err := uuid.Parse(filter.BranchID)
+		if err == nil && branchUUID != uuid.Nil {
+			query = query.Where("branch_id = ?", branchUUID)
+		}
+	}
+	if filter.CategoryID != "" {
+		categoryUUID, err := uuid.Parse(filter.CategoryID)
+		if err == nil && categoryUUID != uuid.Nil {
+			query = query.Where("category_id = ?", categoryUUID)
+		}
+	}
+	if filter.SortBy != "" {
+		sortOrder := "ASC"
+		if filter.SortOrder == "desc" {
+			sortOrder = "DESC"
+		}
+		query = query.Order(filter.SortBy + " " + sortOrder)
+	} else {
+		query = query.Order("created_at DESC")
 	}
 
 	query = query.Limit(filter.Limit).Offset(filter.Offset)
 
-	// Load relationships
 	query = query.Preload("Service").Preload("Branch")
 
 	err := query.Find(&bookings).Error
+
 	return bookings, err
 }
 

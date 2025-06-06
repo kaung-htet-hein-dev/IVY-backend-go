@@ -2,8 +2,8 @@ package handler
 
 import (
 	"KaungHtetHein116/IVY-backend/api/transport"
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
-	"KaungHtetHein116/IVY-backend/internal/repository"
 	"KaungHtetHein116/IVY-backend/internal/usecase"
 	"KaungHtetHein116/IVY-backend/utils"
 	"errors"
@@ -66,34 +66,11 @@ func (h *BookingHandler) GetBookingByID(c echo.Context) error {
 }
 
 func (h *BookingHandler) GetAllBookings(c echo.Context) error {
-	// Create and populate filter
-	filter := repository.NewBookingFilter()
+	filter := params.NewServiceQueryParams()
+	err := c.Bind(filter)
 
-	// Parse user ID if provided
-	if userID := c.QueryParam("user_id"); userID != "" {
-		if uid, err := uuid.Parse(userID); err == nil {
-			filter.UserID = uid
-		}
-	}
-
-	// Parse other filter parameters
-	filter.Status = c.QueryParam("status")
-	filter.BookedDate = c.QueryParam("booked_date")
-
-	// Parse pagination
-	if limit, err := utils.ParseStringToInt(c.QueryParam("limit")); err == nil && limit > 0 {
-		filter.Limit = limit
-	}
-	if offset, err := utils.ParseStringToInt(c.QueryParam("offset")); err == nil && offset >= 0 {
-		filter.Offset = offset
-	}
-
-	// Parse sorting parameters (optional)
-	if sortBy := c.QueryParam("sort_by"); sortBy != "" {
-		filter.SortBy = sortBy
-		if sortOrder := c.QueryParam("sort_order"); sortOrder != "" {
-			filter.SortOrder = sortOrder
-		}
+	if err != nil {
+		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
 	}
 
 	bookings, err := h.usecase.GetAllBookings(c.Request().Context(), filter)
