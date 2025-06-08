@@ -13,13 +13,13 @@ import (
 type BookingRepository interface {
 	Create(ctx context.Context, booking *entity.Booking) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
-	GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Booking, error)
+	GetAll(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	CheckSameUserBooking(ctx context.Context, userID uuid.UUID, bookedDate string, bookedTime string) error
 	GetBookingTimeSlotByDateAndBranch(ctx context.Context, branchID uuid.UUID, bookedDate string) []string
-	BuildQuery(ctx context.Context, params *params.ServiceQueryParams, preloads ...string) *gorm.DB
+	BuildQuery(ctx context.Context, params *params.BookingQueryParams, preloads ...string) *gorm.DB
 }
 
 type bookingRepository struct {
@@ -59,7 +59,7 @@ func (r *bookingRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 	return &booking, nil
 }
 
-func (r *bookingRepository) GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Booking, error) {
+func (r *bookingRepository) GetAll(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error) {
 	var bookings []entity.Booking
 
 	query := r.BuildQuery(ctx, filter, "Service", "Branch")
@@ -130,7 +130,7 @@ func (r *bookingRepository) GetBookingTimeSlotByDateAndBranch(ctx context.Contex
 	return timeSlots
 }
 
-func (r *bookingRepository) BuildQuery(ctx context.Context, params *params.ServiceQueryParams, preloads ...string) *gorm.DB {
+func (r *bookingRepository) BuildQuery(ctx context.Context, params *params.BookingQueryParams, preloads ...string) *gorm.DB {
 	builder := utils.NewQueryBuilder(r.db, ctx)
 
 	// Apply UUID filters

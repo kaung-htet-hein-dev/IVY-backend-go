@@ -7,8 +7,8 @@ type BaseQueryParams struct {
 	SortOrder string `query:"sort_order"`
 }
 
-// service
-type ServiceQueryParams struct {
+// booking
+type BookingQueryParams struct {
 	BaseQueryParams
 	UserID     string `query:"user_id"`
 	Status     string `query:"status"`
@@ -18,8 +18,8 @@ type ServiceQueryParams struct {
 	BookedTime string `query:"booked_time"`
 }
 
-func NewServiceQueryParams() *ServiceQueryParams {
-	return &ServiceQueryParams{
+func NewBookingQueryParams() *BookingQueryParams {
+	return &BookingQueryParams{
 		BaseQueryParams: BaseQueryParams{
 			Limit:  10,
 			Offset: 0,
@@ -59,6 +59,26 @@ type BranchQueryParams struct {
 
 func NewBranchQueryParams() *BranchQueryParams {
 	return &BranchQueryParams{
+		BaseQueryParams: BaseQueryParams{
+			Limit:  10,
+			Offset: 0,
+		},
+	}
+}
+
+// service
+
+type ServiceQueryParams struct {
+	BaseQueryParams
+	Name           string `query:"name"`
+	DurationMinute int    `query:"duration_minute"`
+	Price          int    `query:"price"`
+	CategoryID     string `query:"category_id"`
+	BranchID       string `query:"branch_id"`
+}
+
+func NewServiceQueryParams() *ServiceQueryParams {
+	return &ServiceQueryParams{
 		BaseQueryParams: BaseQueryParams{
 			Limit:  10,
 			Offset: 0,

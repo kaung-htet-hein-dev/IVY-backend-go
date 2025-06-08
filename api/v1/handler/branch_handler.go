@@ -46,6 +46,9 @@ func (h *BranchHandler) GetBranchByID(c echo.Context) error {
 func (h *BranchHandler) GetAllBranches(c echo.Context) error {
 	filter := params.NewBranchQueryParams()
 	err := c.Bind(filter)
+	if err != nil {
+		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
+	}
 
 	branches, err := h.usecase.GetAllBranches(c.Request().Context(), filter)
 	if err != nil {

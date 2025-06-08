@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/internal/repository"
@@ -14,7 +15,7 @@ import (
 type ServiceUsecase interface {
 	CreateService(ctx context.Context, req *request.CreateServiceRequest) (*entity.Service, error)
 	GetServiceByID(ctx context.Context, id uuid.UUID) (*entity.Service, error)
-	GetAllServices(ctx context.Context) ([]entity.Service, error)
+	GetAllServices(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Service, error)
 	UpdateService(ctx context.Context, id uuid.UUID, req *request.UpdateServiceRequest) (*entity.Service, error)
 	DeleteService(ctx context.Context, id uuid.UUID) error
 }
@@ -55,8 +56,8 @@ func (u *serviceUsecase) GetServiceByID(ctx context.Context, id uuid.UUID) (*ent
 	return u.repo.GetByID(ctx, id)
 }
 
-func (u *serviceUsecase) GetAllServices(ctx context.Context) ([]entity.Service, error) {
-	return u.repo.GetAll(ctx)
+func (u *serviceUsecase) GetAllServices(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Service, error) {
+	return u.repo.GetAll(ctx, filter)
 }
 
 func (u *serviceUsecase) UpdateService(ctx context.Context, id uuid.UUID, req *request.UpdateServiceRequest) (*entity.Service, error) {

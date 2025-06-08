@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
 	"context"
+	"strconv"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -12,10 +14,11 @@ import (
 type ServiceRepository interface {
 	Create(ctx context.Context, service *entity.Service) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Service, error)
-	GetAll(ctx context.Context) ([]entity.Service, error)
+	GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Service, error)
 	Update(ctx context.Context, id uuid.UUID, updates map[string]interface{}, branches []entity.Branch) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	CheckBranchCategoryExist(ctx context.Context, service *entity.Service) error
+	BuildQuery(ctx context.Context, filter *params.ServiceQueryParams, preload ...string) *gorm.DB
 }
 
 type serviceRepository struct {
@@ -69,13 +72,44 @@ func (r *serviceRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 	return &service, nil
 }
 
-func (r *serviceRepository) GetAll(ctx context.Context) ([]entity.Service, error) {
+func (r *serviceRepository) GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Service, error) {
 	var services []entity.Service
-	err := r.db.WithContext(ctx).
-		Preload("Category").
-		Preload("Branches").
+
+	query := r.BuildQuery(ctx, filter, "Category", "Branches")
+
+	// Filter by branch ID if provided
+	if filter.BranchID != "" {
+		if branchID, err := uuid.Parse(filter.BranchID); err == nil && branchID != uuid.Nil {
+			query = query.Joins("JOIN branch_service ON services.id = branch_service.service_id").
+				Where("branch_service.branch_id = ?", branchID)
+		}
+	}
+
+	err := query.
 		Find(&services).Error
+
 	return services, err
+}
+
+func (r *serviceRepository) BuildQuery(ctx context.Context, filter *params.ServiceQueryParams, preload ...string) *gorm.DB {
+	query := utils.NewQueryBuilder(r.db, ctx)
+
+	stringFilters := map[string]string{
+		"name": filter.Name,
+	}
+	if filter.DurationMinute != 0 {
+		stringFilters["duration_minute"] = strconv.Itoa(filter.DurationMinute)
+	}
+	if filter.Price != 0 {
+		stringFilters["price"] = strconv.Itoa(filter.Price)
+	}
+	query.ApplyStringFilters(stringFilters)
+
+	query.ApplyUUIDFilter("category_id", filter.CategoryID)
+
+	query.ApplyPreloads(preload...)
+
+	return query.Build()
 }
 
 func (r *serviceRepository) Update(ctx context.Context, id uuid.UUID, updates map[string]interface{}, branches []entity.Branch) error {

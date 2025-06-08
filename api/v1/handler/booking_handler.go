@@ -66,7 +66,7 @@ func (h *BookingHandler) GetBookingByID(c echo.Context) error {
 }
 
 func (h *BookingHandler) GetAllBookings(c echo.Context) error {
-	filter := params.NewServiceQueryParams()
+	filter := params.NewBookingQueryParams()
 	err := c.Bind(filter)
 
 	if err != nil {

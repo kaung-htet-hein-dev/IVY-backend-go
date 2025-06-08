@@ -16,7 +16,7 @@ import (
 type BookingUsecase interface {
 	CreateBooking(ctx context.Context, userID uuid.UUID, req *request.CreateBookingRequest) (*entity.Booking, error)
 	GetBookingByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
-	GetAllBookings(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Booking, error)
+	GetAllBookings(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error)
 	GetUserBookings(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
 	UpdateBooking(ctx context.Context, id uuid.UUID, req *request.UpdateBookingRequest) (*entity.Booking, error)
 	DeleteBooking(ctx context.Context, id uuid.UUID) error
@@ -66,7 +66,7 @@ func (u *bookingUsecase) GetBookingByID(ctx context.Context, id uuid.UUID) (*ent
 	return u.repo.GetByID(ctx, id)
 }
 
-func (u *bookingUsecase) GetAllBookings(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Booking, error) {
+func (u *bookingUsecase) GetAllBookings(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error) {
 	return u.repo.GetAll(ctx, filter)
 }
 
