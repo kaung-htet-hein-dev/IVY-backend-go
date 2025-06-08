@@ -2,6 +2,7 @@ package handler
 
 import (
 	"KaungHtetHein116/IVY-backend/api/transport"
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/usecase"
 	"net/http"
@@ -45,7 +46,13 @@ func (h *CategoryHandler) GetCategoryByID(c echo.Context) error {
 }
 
 func (h *CategoryHandler) GetAllCategories(c echo.Context) error {
-	categories, err := h.usecase.GetAllCategories(c.Request().Context())
+	filter := params.NewCategoryQueryParams()
+	err := c.Bind(filter)
+	if err != nil {
+		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
+	}
+
+	categories, err := h.usecase.GetAllCategories(c.Request().Context(), filter)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get categories", err)
 	}

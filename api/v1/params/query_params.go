@@ -85,3 +85,19 @@ func NewServiceQueryParams() *ServiceQueryParams {
 		},
 	}
 }
+
+// category
+
+type CategoryQueryParams struct {
+	BaseQueryParams
+	Name string `query:"name"`
+}
+
+func NewCategoryQueryParams() *CategoryQueryParams {
+	return &CategoryQueryParams{
+		BaseQueryParams: BaseQueryParams{
+			Limit:  10,
+			Offset: 0,
+		},
+	}
+}

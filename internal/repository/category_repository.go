@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/internal/entity"
+	"KaungHtetHein116/IVY-backend/utils"
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -11,9 +14,10 @@ import (
 type CategoryRepository interface {
 	Create(ctx context.Context, category *entity.Category) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Category, error)
-	GetAll(ctx context.Context) ([]entity.Category, error)
+	GetAll(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, error)
 	Update(ctx context.Context, category *entity.Category) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	BuildQuery(ctx context.Context, params *params.CategoryQueryParams, preloads ...string) *gorm.DB
 }
 
 type categoryRepository struct {
@@ -30,9 +34,11 @@ func (r *categoryRepository) Create(ctx context.Context, category *entity.Catego
 	if err == nil {
 		return gorm.ErrDuplicatedKey
 	}
-	if err != nil && err != gorm.ErrRecordNotFound {
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
+
 	return r.db.WithContext(ctx).Create(category).Error
 }
 
@@ -45,10 +51,22 @@ func (r *categoryRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity
 	return &category, nil
 }
 
-func (r *categoryRepository) GetAll(ctx context.Context) ([]entity.Category, error) {
+func (r *categoryRepository) GetAll(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, error) {
 	var categories []entity.Category
-	err := r.db.WithContext(ctx).Find(&categories).Error
+	query := r.BuildQuery(ctx, params)
+	err := query.Find(&categories).Error
 	return categories, err
+}
+
+func (r *categoryRepository) BuildQuery(ctx context.Context, params *params.CategoryQueryParams, preloads ...string) *gorm.DB {
+	builder := utils.NewQueryBuilder(r.db, ctx)
+
+	// Apply string filters
+	builder.ApplyStringFilters(map[string]string{
+		"name": params.Name,
+	})
+
+	return builder.Build()
 }
 
 func (r *categoryRepository) Update(ctx context.Context, category *entity.Category) error {
