@@ -43,13 +43,13 @@ func (r *branchRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.B
 func (r *branchRepository) GetAll(ctx context.Context, filter *params.BranchQueryParams) ([]entity.Branch, error) {
 	var branches []entity.Branch
 
+	query := r.BuildQuery(ctx, filter)
+
 	if filter.ServiceID != "" {
 		serviceIDUUID, err := uuid.Parse(filter.ServiceID)
 		if err != nil {
 			return nil, err
 		}
-
-		query := r.BuildQuery(ctx, filter)
 
 		err = query.
 			Joins("JOIN branch_service ON branches.id = branch_service.branch_id").
@@ -62,7 +62,7 @@ func (r *branchRepository) GetAll(ctx context.Context, filter *params.BranchQuer
 		return branches, nil
 	}
 
-	err := r.db.WithContext(ctx).Find(&branches).Error
+	err := query.Find(&branches).Error
 	return branches, err
 }
 
@@ -89,6 +89,7 @@ func (r *branchRepository) BuildQuery(ctx context.Context, params *params.Branch
 		"location":     params.Location,
 		"name":         params.Name,
 		"phone_number": params.PhoneNumber,
+		"service_id":   params.ServiceID,
 	})
 
 	// Apply sorting
