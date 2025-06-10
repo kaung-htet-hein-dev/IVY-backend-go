@@ -21,12 +21,13 @@ var rootCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Welcome to Task Manager Api")
+		fmt.Println("Welcome to IVY Backend Server!")
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(server.StartDevCmd)
+	rootCmd.AddCommand(server.StartProdCmd)
 }
 
 func Execute() {

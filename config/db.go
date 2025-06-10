@@ -7,7 +7,6 @@ import (
 
 	"KaungHtetHein116/IVY-backend/internal/entity"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/gommon/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -55,11 +54,6 @@ func ConnectDB() *gorm.DB {
 }
 
 func getDSN() string {
-	err := godotenv.Load(".env.development")
-	if err != nil {
-		log.Error("Error loading .env.development file")
-	}
-
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
