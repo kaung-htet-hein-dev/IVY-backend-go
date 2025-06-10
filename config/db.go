@@ -55,9 +55,9 @@ func ConnectDB() *gorm.DB {
 }
 
 func getDSN() string {
-	err := godotenv.Load()
+	err := godotenv.Load(".env.development")
 	if err != nil {
-		log.Error("Error loading .env file")
+		log.Error("Error loading .env.development file")
 	}
 
 	host := os.Getenv("DB_HOST")

@@ -3,6 +3,8 @@ services:
     image: postgres:15
     container_name: ivy-api-postgres
     restart: always
+    env_file:
+      - ./.env.development
     ports:
       - "5432:5432"
     environment:

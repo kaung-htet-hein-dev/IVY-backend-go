@@ -11,8 +11,9 @@ import (
 var StartDevCmd = &cobra.Command{
 	Use: "dev",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := godotenv.Load(); err != nil {
-			log.Fatal(err)
+		// Load .env.development for development environment
+		if err := godotenv.Load(".env.development"); err != nil {
+			log.Fatal("Error loading .env.development file")
 		}
 
 		api.StartServer()
