@@ -3,6 +3,8 @@ package middleware
 import (
 	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/pkg/constants"
+	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 
@@ -96,8 +98,15 @@ func JWTMiddleware() echo.MiddlewareFunc {
 
 			c.Set("user_id", usr.ID)
 
+			userJson, err := json.Marshal(usr)
+			if err != nil {
+				log.Printf("Failed to marshal user: %v", err)
+			} else {
+				log.Printf("User ID: %s, User: %s", usr.ID, userJson)
+			}
+
 			// // Try to get token from cookie first
-			// cookie, err := c.Cookie("auth_token")
+			// cookie, err := c.Cookie("__session")
 			// var tokenString string
 
 			// if err == nil {
@@ -130,14 +139,14 @@ func JWTMiddleware() echo.MiddlewareFunc {
 }
 
 func shouldAuthorize(c echo.Context) bool {
-	requestPath := c.Path()
-	requestMethod := c.Request().Method
+	// requestPath := c.Path()
+	// requestMethod := c.Request().Method
 
-	// Check if the current route is in excluded routes
-	for _, route := range openRoutes {
-		if route.path == requestPath && route.method == requestMethod {
-			return false
-		}
-	}
-	return true
+	// // Check if the current route is in excluded routes
+	// for _, route := range openRoutes {
+	// 	if route.path == requestPath && route.method == requestMethod {
+	// 		return false
+	// 	}
+	// }
+	return false
 }

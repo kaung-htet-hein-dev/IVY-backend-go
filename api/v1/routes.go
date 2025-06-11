@@ -17,11 +17,8 @@ func RegisterUserRoutes(e *echo.Echo, db *gorm.DB) {
 
 	userRoutes := e.Group("/api/v1/user")
 	userRoutes.GET("", userHandler.GetAllUsers)
-	// userRoutes.POST("/clerk-webhook", utils.BindAndValidateDecorator(userHandler.ClerkWebhook))
-	userRoutes.POST("/register", utils.BindAndValidateDecorator(userHandler.RegisterUser))
-	userRoutes.POST("/login", utils.BindAndValidateDecorator(userHandler.LoginUser))
+	userRoutes.POST("/clerk-user-webhook", userHandler.ClerkWebhook)
 	userRoutes.GET("/me", userHandler.GetMe)
-	userRoutes.POST("/logout", userHandler.Logout)
 	userRoutes.PUT("/:id", utils.BindAndValidateDecorator(userHandler.UpdateUser))
 }
 

@@ -22,7 +22,7 @@ func init() {
 }
 
 func StartServer() {
-	clerk.SetKey("<YOUR_CLERK_API_KEY>")
+	clerk.SetKey(os.Getenv("CLERK_SECRET_KEY"))
 
 	db := config.ConnectDB()
 

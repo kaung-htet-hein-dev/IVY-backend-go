@@ -2,18 +2,23 @@ package entity
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type User struct {
-	ID          uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	Name        string     `json:"name" gorm:"type:varchar(255);not null"`
-	CreatedAt   time.Time  `json:"create_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
-	UpdatedAt   time.Time  `json:"update_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
-	DeletedAt   *time.Time `json:"-"`
-	Email       string     `json:"email" gorm:"type:varchar(255);unique;not null"`
-	Password    string     `json:"-" gorm:"type:varchar(255);not null"`
-	PhoneNumber *string    `json:"phone_number" gorm:"type:varchar(20)"`
-	Role        *string    `json:"role" gorm:"type:varchar(20);default:USER;check:role IN ('USER', 'ADMIN')"`
+	ID        string `json:"id" gorm:"type:varchar(36);primary_key"`
+	FirstName string `json:"first_name" gorm:"type:varchar(255)"`
+	LastName  string `json:"last_name" gorm:"type:varchar(255)"`
+	Email     string `json:"email" gorm:"type:varchar(255);unique;not null"`
+	Verified  bool   `json:"verified" gorm:"type:boolean;default:false"`
+
+	// custom fields
+	Role        *string `json:"role" gorm:"type:varchar(20);default:USER;check:role IN ('USER', 'ADMIN')"`
+	PhoneNumber *string `json:"phone_number" gorm:"type:varchar(20)"`
+	Gender      *string `json:"gender" gorm:"type:varchar(20);default:unknown"`
+	Birthday    *string `json:"birthday" gorm:"type:date"`
+
+	// auto fields
+	CreatedAt *time.Time `json:"created_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
+	UpdatedAt *time.Time `json:"updated_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }

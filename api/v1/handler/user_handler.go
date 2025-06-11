@@ -7,35 +7,19 @@ import (
 	"KaungHtetHein116/IVY-backend/internal/usecase"
 	"KaungHtetHein116/IVY-backend/utils"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
 type UserHandler interface {
-	RegisterUser(c echo.Context, user *request.UserRegisterRequest) error
-	LoginUser(c echo.Context, user *request.UserLoginRequest) error
 	GetMe(c echo.Context) error
-	Logout(c echo.Context) error
 	GetAllUsers(c echo.Context) error
 	UpdateUser(c echo.Context, req *request.UserUpdateRequest) error
-	ClerkWebhook(c echo.Context, req request.ClerkWebhookRequest) error
+	ClerkWebhook(c echo.Context) error
 }
 
 type userHandler struct {
 	userUsecase usecase.UserUsecase
-}
-
-func (h *userHandler) ClerkWebhook(c echo.Context, req request.ClerkWebhookRequest) error {
-	// Handle Clerk webhook events here
-	err := h.userUsecase.HandleClerkWebhook(c.Request().Context(), req)
-
-	if err != nil {
-		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to process Clerk webhook", err)
-	}
-	// This is a placeholder implementation
-	// You can add logic to handle different Clerk events like user creation, deletion, etc.
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "Clerk webhook received successfully", nil)
 }
 
 func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
@@ -44,50 +28,19 @@ func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
 	}
 }
 
-func (h *userHandler) RegisterUser(c echo.Context, user *request.UserRegisterRequest) error {
-	err := h.userUsecase.RegisterUser(user)
-	if err != nil {
-
-		if err == utils.ErrDuplicateEntry {
-			return transport.NewApiErrorResponse(c, http.StatusConflict, "User already exists", nil)
-		}
-		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to register user", err)
+func (h *userHandler) ClerkWebhook(c echo.Context) error {
+	var req *request.ClerkWebhookRequest
+	if err := c.Bind(&req); err != nil {
+		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid request format", err)
 	}
 
-	// If registration is successful, return login user
-	return h.LoginUser(c, &request.UserLoginRequest{
-		Email:    user.Email,
-		Password: user.Password,
-	})
-}
+	err := h.userUsecase.HandleClerkWebhook(c.Request().Context(), req)
 
-func (h *userHandler) LoginUser(c echo.Context, user *request.UserLoginRequest) error {
-	token, err := h.userUsecase.LoginUser(user)
 	if err != nil {
-		if err == utils.ErrRecordNotFound {
-			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)
-		}
-
-		if err == utils.ErrInvalidCredentials {
-			return transport.NewApiErrorResponse(c, http.StatusUnauthorized, "Invalid credentials", nil)
-		}
-
-		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to login user", err)
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to process Clerk webhook", err)
 	}
 
-	// Set JWT token as cookie
-	cookie := new(http.Cookie)
-	cookie.Name = "auth_token"
-	cookie.Value = token
-	cookie.Path = "/"
-	cookie.Expires = time.Now().Add(24 * time.Hour)
-	cookie.HttpOnly = true // Prevents JavaScript access
-	cookie.Secure = true   // Only sent over HTTPS
-	cookie.SameSite = http.SameSiteStrictMode
-	c.SetCookie(cookie)
-
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "User logged in successfully",
-		echo.Map{"token": token})
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Clerk webhook received successfully", nil)
 }
 
 func (h *userHandler) GetMe(c echo.Context) error {
@@ -107,21 +60,6 @@ func (h *userHandler) GetMe(c echo.Context) error {
 	}
 
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "User data retrieved successfully", userData)
-}
-
-func (h *userHandler) Logout(c echo.Context) error {
-	// Create a cookie that expires immediately
-	cookie := new(http.Cookie)
-	cookie.Name = "auth_token"
-	cookie.Value = ""
-	cookie.Path = "/"
-	cookie.Expires = time.Now().Add(-1 * time.Hour) // Set expiration in the past
-	cookie.HttpOnly = true
-	cookie.Secure = true
-	cookie.SameSite = http.SameSiteStrictMode
-	c.SetCookie(cookie)
-
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "Successfully logged out", nil)
 }
 
 func (h *userHandler) GetAllUsers(c echo.Context) error {
