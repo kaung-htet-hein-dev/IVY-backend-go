@@ -18,6 +18,7 @@ type UserUsecase interface {
 	GetMe(userID string) (*entity.User, error)
 	GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, error)
 	UpdateUser(userID string, req *request.UserUpdateRequest) error
+	HandleClerkWebhook(c context.Context, req request.ClerkWebhookRequest) error
 }
 
 type userUsecase struct {
@@ -28,6 +29,24 @@ func NewUserUsecase(userRepo repository.UserRepository) UserUsecase {
 	return &userUsecase{
 		userRepo: userRepo,
 	}
+}
+
+func (u *userUsecase) HandleClerkWebhook(c context.Context, req request.ClerkWebhookRequest) error {
+
+	event := req["type"].(string)
+	// data := req["data"].(map[string]interface{})
+
+	switch event {
+	case "user.created":
+	// u.userRepo.CreateUser()
+
+	case "user.updated":
+		// u.userRepo.UpdateUser()
+	case "user.deleted":
+		// u.userRepo.DeleteUser()
+	}
+
+	return nil
 }
 
 func (u *userUsecase) RegisterUser(user *request.UserRegisterRequest) error {

@@ -10,6 +10,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/clerk/clerk-sdk-go/v2"
 )
 
 func init() {
@@ -20,6 +22,8 @@ func init() {
 }
 
 func StartServer() {
+	clerk.SetKey("<YOUR_CLERK_API_KEY>")
+
 	db := config.ConnectDB()
 
 	e := echo.New()

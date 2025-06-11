@@ -4,10 +4,10 @@ import (
 	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/pkg/constants"
 	"net/http"
-	"os"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/clerk/clerk-sdk-go/v2/jwt"
+	"github.com/clerk/clerk-sdk-go/v2/user"
 	"github.com/labstack/echo/v4"
 )
 
@@ -78,33 +78,51 @@ func JWTMiddleware() echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			// Try to get token from cookie first
-			cookie, err := c.Cookie("auth_token")
-			var tokenString string
+			sessionToken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
 
-			if err == nil {
-				// Token found in cookie
-				tokenString = cookie.Value
-			} else {
-				// Try Authorization header as fallback
-				authHeader := c.Request().Header.Get("Authorization")
-				if authHeader == "" {
-					return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrUnauthorized, nil)
-				}
-				tokenString = strings.Replace(authHeader, "Bearer ", "", 1)
-			}
-			token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
-				return []byte(os.Getenv("JWT_SECRET")), nil
+			claims, err := jwt.Verify(c.Request().Context(), &jwt.VerifyParams{
+				Token: sessionToken,
 			})
 
-			if err != nil || !token.Valid {
+			if err != nil {
 				return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrInvalidToken, nil)
 			}
 
-			// Add user id to context
-			claims := token.Claims.(jwt.MapClaims)
+			usr, err := user.Get(c.Request().Context(), claims.Subject)
 
-			c.Set("user_id", (claims["user_id"].(string)))
+			if err != nil {
+				return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrInvalidToken, nil)
+			}
+
+			c.Set("user_id", usr.ID)
+
+			// // Try to get token from cookie first
+			// cookie, err := c.Cookie("auth_token")
+			// var tokenString string
+
+			// if err == nil {
+			// 	// Token found in cookie
+			// 	tokenString = cookie.Value
+			// } else {
+			// 	// Try Authorization header as fallback
+			// 	authHeader := c.Request().Header.Get("Authorization")
+			// 	if authHeader == "" {
+			// 		return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrUnauthorized, nil)
+			// 	}
+			// 	tokenString = strings.Replace(authHeader, "Bearer ", "", 1)
+			// }
+			// token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
+			// 	return []byte(os.Getenv("JWT_SECRET")), nil
+			// })
+
+			// if err != nil || !token.Valid {
+			// 	return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrInvalidToken, nil)
+			// }
+
+			// // Add user id to context
+			// claims := token.Claims.(jwt.MapClaims)
+
+			// c.Set("user_id", (claims["user_id"].(string)))
 
 			return next(c)
 		}

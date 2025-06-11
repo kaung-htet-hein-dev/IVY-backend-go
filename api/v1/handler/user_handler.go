@@ -19,10 +19,23 @@ type UserHandler interface {
 	Logout(c echo.Context) error
 	GetAllUsers(c echo.Context) error
 	UpdateUser(c echo.Context, req *request.UserUpdateRequest) error
+	ClerkWebhook(c echo.Context, req request.ClerkWebhookRequest) error
 }
 
 type userHandler struct {
 	userUsecase usecase.UserUsecase
+}
+
+func (h *userHandler) ClerkWebhook(c echo.Context, req request.ClerkWebhookRequest) error {
+	// Handle Clerk webhook events here
+	err := h.userUsecase.HandleClerkWebhook(c.Request().Context(), req)
+
+	if err != nil {
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to process Clerk webhook", err)
+	}
+	// This is a placeholder implementation
+	// You can add logic to handle different Clerk events like user creation, deletion, etc.
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Clerk webhook received successfully", nil)
 }
 
 func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
