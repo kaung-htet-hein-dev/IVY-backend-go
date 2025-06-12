@@ -3,8 +3,8 @@ module KaungHtetHein116/IVY-backend
 go 1.24.1
 
 require (
+	github.com/clerk/clerk-sdk-go/v2 v2.3.1
 	github.com/go-playground/validator/v10 v10.26.0
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
@@ -18,7 +18,6 @@ require (
 )
 
 require (
-	github.com/clerk/clerk-sdk-go/v2 v2.3.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

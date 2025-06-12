@@ -16,7 +16,6 @@ type UserHandler interface {
 	GetAllUsers(c echo.Context) error
 	UpdateUser(c echo.Context, req *request.UserUpdateRequest) error
 	ClerkWebhook(c echo.Context) error
-	DeleteUser(c echo.Context) error
 }
 
 type userHandler struct {
@@ -77,17 +76,6 @@ func (h *userHandler) GetAllUsers(c echo.Context) error {
 	}
 
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "Users retrieved successfully", users)
-}
-
-func (h *userHandler) DeleteUser(c echo.Context) error {
-	err := h.userUsecase.DeleteUser(c.Request().Context(), c.Param("id"))
-	if err != nil {
-		if err == utils.ErrRecordNotFound {
-			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)
-		}
-		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to delete user", err)
-	}
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "User deleted successfully", nil)
 }
 
 func (h *userHandler) UpdateUser(c echo.Context, req *request.UserUpdateRequest) error {

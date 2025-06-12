@@ -20,7 +20,6 @@ func RegisterUserRoutes(e *echo.Echo, db *gorm.DB) {
 	userRoutes.POST("/clerk-user-webhook", userHandler.ClerkWebhook)
 	userRoutes.GET("/me", userHandler.GetMe)
 	userRoutes.PUT("/:id", utils.BindAndValidateDecorator(userHandler.UpdateUser))
-	userRoutes.DELETE("/:id", userHandler.DeleteUser)
 }
 
 func RegisterBranchRoutes(e *echo.Echo, db *gorm.DB) {

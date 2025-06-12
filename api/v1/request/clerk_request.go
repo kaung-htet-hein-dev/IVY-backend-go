@@ -11,6 +11,11 @@ type EmailAddress struct {
 	} `json:"verification"`
 }
 
+type PhoneNumbers struct {
+	ID          string `json:"id"`
+	PhoneNumber string `json:"phone_number"`
+}
+
 type ClerkUserData struct {
 	Birthday              string         `json:"birthday"`
 	CreatedAt             int64          `json:"created_at"`
@@ -25,7 +30,7 @@ type ClerkUserData struct {
 	LastSignInAt          int64          `json:"last_sign_in_at"`
 	Object                string         `json:"object"`
 	PasswordEnabled       bool           `json:"password_enabled"`
-	PhoneNumbers          []string       `json:"phone_numbers"`
+	PhoneNumbers          []PhoneNumbers `json:"phone_numbers"`
 	PrimaryEmailAddressID string         `json:"primary_email_address_id"`
 	PrimaryPhoneNumberID  any            `json:"primary_phone_number_id"`
 	PrimaryWeb3WalletID   any            `json:"primary_web3_wallet_id"`

@@ -14,7 +14,6 @@ type UserUsecase interface {
 	GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, error)
 	UpdateUser(c context.Context, userID string, req *request.UserUpdateRequest) error
 	HandleClerkWebhook(c context.Context, req *request.ClerkWebhookRequest) error
-	DeleteUser(c context.Context, userID string) error
 }
 
 type userUsecase struct {
@@ -31,14 +30,15 @@ func (u *userUsecase) HandleClerkWebhook(c context.Context, req *request.ClerkWe
 	event := req.Type
 	var email string
 	var verified bool
+	var phoneNumber *string
+
 	if len(req.Data.EmailAddresses) > 0 {
 		email = req.Data.EmailAddresses[0].EmailAddress
 		verified = req.Data.EmailAddresses[0].Verification.Status == "verified"
 	}
 
-	var phoneNumber *string
 	if len(req.Data.PhoneNumbers) > 0 {
-		phoneNumber = &req.Data.PhoneNumbers[0]
+		phoneNumber = &req.Data.PhoneNumbers[0].PhoneNumber
 	}
 
 	clerkUser := &entity.User{
@@ -104,6 +104,7 @@ func (u *userUsecase) GetAllUsers(c context.Context, filter *params.UserQueryPar
 
 func (u *userUsecase) UpdateUser(c context.Context, userID string, req *request.UserUpdateRequest) error {
 	err := u.userRepo.UpdateUser(c, &entity.User{
+		ID:          userID,
 		Role:        req.Role,
 		PhoneNumber: req.PhoneNumber,
 		Gender:      req.Gender,
@@ -111,13 +112,4 @@ func (u *userUsecase) UpdateUser(c context.Context, userID string, req *request.
 	})
 	// Get existing user
 	return err
-}
-
-func (u *userUsecase) DeleteUser(c context.Context, userID string) error {
-	// Delete user by ID
-	err := u.userRepo.DeleteUser(c, userID)
-	if err != nil {
-		return utils.HandleGormError(err, "user")
-	}
-	return nil
 }
