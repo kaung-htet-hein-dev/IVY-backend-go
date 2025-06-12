@@ -15,7 +15,7 @@ type User struct {
 	Role        *string `json:"role" gorm:"type:varchar(20);default:USER;check:role IN ('USER', 'ADMIN')"`
 	PhoneNumber *string `json:"phone_number" gorm:"type:varchar(20)"`
 	Gender      *string `json:"gender" gorm:"type:varchar(20);default:unknown"`
-	Birthday    *string `json:"birthday" gorm:"type:date"`
+	Birthday    *string `json:"birthday" gorm:"type:varchar(255)"`
 
 	// auto fields
 	CreatedAt *time.Time `json:"created_at" gorm:"not null;default:CURRENT_TIMESTAMP"`

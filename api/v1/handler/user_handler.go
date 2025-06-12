@@ -16,6 +16,7 @@ type UserHandler interface {
 	GetAllUsers(c echo.Context) error
 	UpdateUser(c echo.Context, req *request.UserUpdateRequest) error
 	ClerkWebhook(c echo.Context) error
+	DeleteUser(c echo.Context) error
 }
 
 type userHandler struct {
@@ -50,7 +51,7 @@ func (h *userHandler) GetMe(c echo.Context) error {
 		return transport.NewApiErrorResponse(c, http.StatusUnauthorized, "Unauthorized access", nil)
 	}
 
-	userData, err := h.userUsecase.GetMe(userID)
+	userData, err := h.userUsecase.GetMe(c.Request().Context(), userID)
 
 	if err != nil {
 		if err == utils.ErrRecordNotFound {
@@ -78,6 +79,17 @@ func (h *userHandler) GetAllUsers(c echo.Context) error {
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "Users retrieved successfully", users)
 }
 
+func (h *userHandler) DeleteUser(c echo.Context) error {
+	err := h.userUsecase.DeleteUser(c.Request().Context(), c.Param("id"))
+	if err != nil {
+		if err == utils.ErrRecordNotFound {
+			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)
+		}
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to delete user", err)
+	}
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "User deleted successfully", nil)
+}
+
 func (h *userHandler) UpdateUser(c echo.Context, req *request.UserUpdateRequest) error {
 	// Get the ID of the user to update
 	userID := c.Param("id")
@@ -91,7 +103,7 @@ func (h *userHandler) UpdateUser(c echo.Context, req *request.UserUpdateRequest)
 	// If trying to update someone else's profile
 	if currentUserID != userID {
 		// Check if current user is admin
-		currentUser, err := h.userUsecase.GetMe(currentUserID)
+		currentUser, err := h.userUsecase.GetMe(c.Request().Context(), currentUserID)
 		if err != nil {
 			return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to verify user permissions", err)
 		}
@@ -103,7 +115,7 @@ func (h *userHandler) UpdateUser(c echo.Context, req *request.UserUpdateRequest)
 	}
 
 	// Proceed with update
-	err := h.userUsecase.UpdateUser(userID, req)
+	err := h.userUsecase.UpdateUser(c.Request().Context(), userID, req)
 	if err != nil {
 		if err == utils.ErrRecordNotFound {
 			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)

@@ -10,10 +10,11 @@ import (
 )
 
 type UserUsecase interface {
-	GetMe(userID string) (*entity.User, error)
+	GetMe(c context.Context, userID string) (*entity.User, error)
 	GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, error)
-	UpdateUser(userID string, req *request.UserUpdateRequest) error
+	UpdateUser(c context.Context, userID string, req *request.UserUpdateRequest) error
 	HandleClerkWebhook(c context.Context, req *request.ClerkWebhookRequest) error
+	DeleteUser(c context.Context, userID string) error
 }
 
 type userUsecase struct {
@@ -76,16 +77,47 @@ func (u *userUsecase) HandleClerkWebhook(c context.Context, req *request.ClerkWe
 	return nil
 }
 
-func (u *userUsecase) GetMe(userID string) (*entity.User, error) {
-	return nil, nil
+func (u *userUsecase) GetMe(c context.Context, userID string) (*entity.User, error) {
+	user, err := u.userRepo.GetUserByID(c, userID)
+	if err != nil {
+		if err == utils.ErrRecordNotFound {
+			return nil, utils.ErrRecordNotFound
+		}
+		return nil, utils.HandleGormError(err, "user")
+	}
+
+	return user, nil
 }
 
 func (u *userUsecase) GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, error) {
 
-	return nil, nil
+	users, err := u.userRepo.GetUsers(c, filter)
+	if err != nil {
+		if err == utils.ErrRecordNotFound {
+			return nil, utils.ErrRecordNotFound
+		}
+		return nil, utils.HandleGormError(err, "users")
+	}
+
+	return users, nil
 }
 
-func (u *userUsecase) UpdateUser(userID string, req *request.UserUpdateRequest) error {
+func (u *userUsecase) UpdateUser(c context.Context, userID string, req *request.UserUpdateRequest) error {
+	err := u.userRepo.UpdateUser(c, &entity.User{
+		Role:        req.Role,
+		PhoneNumber: req.PhoneNumber,
+		Gender:      req.Gender,
+		Birthday:    req.Birthday,
+	})
 	// Get existing user
+	return err
+}
+
+func (u *userUsecase) DeleteUser(c context.Context, userID string) error {
+	// Delete user by ID
+	err := u.userRepo.DeleteUser(c, userID)
+	if err != nil {
+		return utils.HandleGormError(err, "user")
+	}
 	return nil
 }

@@ -71,7 +71,18 @@ func (r *userRepository) GetUsers(ctx context.Context,
 	params *params.UserQueryParams,
 	preloads ...string) ([]*entity.User, error) {
 
-	return nil, nil
+	query := r.BuildQuery(ctx, params, preloads...)
+
+	var users []*entity.User
+
+	if err := query.Find(&users).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, utils.ErrRecordNotFound
+		}
+		return nil, utils.HandleGormError(err, "users")
+	}
+
+	return users, nil
 }
 
 type userRepository struct {
