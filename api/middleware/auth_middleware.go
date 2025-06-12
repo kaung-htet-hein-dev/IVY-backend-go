@@ -87,7 +87,7 @@ func JWTMiddleware() echo.MiddlewareFunc {
 
 			tokenCookie, err := c.Cookie("__session")
 
-			if err != nil && tokenCookie.Value != "" {
+			if err == nil && tokenCookie.Value != "" {
 				sessionToken = tokenCookie.Value
 			} else if authHeader := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer "); authHeader != "" {
 				sessionToken = authHeader
@@ -120,32 +120,6 @@ func JWTMiddleware() echo.MiddlewareFunc {
 			// 	log.Printf("User ID: %s, User: %s", usr.ID, userJson)
 			// }
 
-			// // Try to get token from cookie first
-
-			// if err == nil {
-			// 	// Token found in cookie
-			// 	tokenString = cookie.Value
-			// } else {
-			// 	// Try Authorization header as fallback
-			// 	authHeader := c.Request().Header.Get("Authorization")
-			// 	if authHeader == "" {
-			// 		return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrUnauthorized, nil)
-			// 	}
-			// 	tokenString = strings.Replace(authHeader, "Bearer ", "", 1)
-			// }
-			// token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
-			// 	return []byte(os.Getenv("JWT_SECRET")), nil
-			// })
-
-			// if err != nil || !token.Valid {
-			// 	return transport.NewApiErrorResponse(c, http.StatusUnauthorized, constants.ErrInvalidToken, nil)
-			// }
-
-			// // Add user id to context
-			// claims := token.Claims.(jwt.MapClaims)
-
-			// c.Set("user_id", (claims["user_id"].(string)))
-
 			return next(c)
 		}
 	}
@@ -161,5 +135,6 @@ func shouldAuthorize(c echo.Context) bool {
 			return false
 		}
 	}
-	return false
+
+	return true
 }
