@@ -2,7 +2,6 @@ package seeder
 
 import (
 	"KaungHtetHein116/IVY-backend/internal/entity"
-	"KaungHtetHein116/IVY-backend/utils"
 	"fmt"
 	"log"
 	"time"
@@ -30,10 +29,7 @@ func (s *DBSeeder) Seed() error {
 	}
 
 	// Seed users
-	users, err := s.seedUsers()
-	if err != nil {
-		return err
-	}
+	users := make([]entity.User, 0, 10)
 
 	// Seed categories
 	categories, err := s.seedCategories()
@@ -83,48 +79,6 @@ func (s *DBSeeder) clearTables() error {
 		return err
 	}
 	return nil
-}
-
-func (s *DBSeeder) seedUsers() ([]entity.User, error) {
-	// Create roles
-	adminRole := "ADMIN"
-	userRole := "USER"
-
-	// Initialize users slice with capacity for admin + regular users
-	users := make([]entity.User, 0, 11)
-
-	// Create admin user
-	adminPhone := "09000000000"
-
-	admin := entity.User{
-		ID:          uuid.New(),
-		Name:        "Admin User",
-		Email:       "admin@example.com",
-		Password:    utils.GenerateHashedPassword("11111111"),
-		PhoneNumber: &adminPhone,
-		Role:        &adminRole,
-	}
-	users = append(users, admin)
-
-	// Create 10 regular users
-
-	for i := 1; i <= 10; i++ {
-		phone := fmt.Sprintf("0912345%04d", i)
-		user := entity.User{
-			ID:          uuid.New(),
-			Name:        fmt.Sprintf("User %d", i),
-			Email:       fmt.Sprintf("user%d@example.com", i),
-			Password:    utils.GenerateHashedPassword("11111111"),
-			PhoneNumber: &phone,
-			Role:        &userRole,
-		}
-		users = append(users, user)
-	}
-
-	if err := s.db.Create(&users).Error; err != nil {
-		return nil, err
-	}
-	return users, nil
 }
 
 func (s *DBSeeder) seedCategories() ([]entity.Category, error) {

@@ -14,10 +14,10 @@ import (
 )
 
 type BookingUsecase interface {
-	CreateBooking(ctx context.Context, userID uuid.UUID, req *request.CreateBookingRequest) (*entity.Booking, error)
+	CreateBooking(ctx context.Context, userID string, req *request.CreateBookingRequest) (*entity.Booking, error)
 	GetBookingByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
 	GetAllBookings(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error)
-	GetUserBookings(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
+	GetUserBookings(ctx context.Context, userID string) ([]entity.Booking, error)
 	UpdateBooking(ctx context.Context, id uuid.UUID, req *request.UpdateBookingRequest) (*entity.Booking, error)
 	DeleteBooking(ctx context.Context, id uuid.UUID) error
 	GetTimeSlotsByBranchIDAndDate(ctx context.Context, branchID uuid.UUID, bookedDate string) ([]Slot, error)
@@ -31,7 +31,7 @@ func NewBookingUsecase(repo repository.BookingRepository) BookingUsecase {
 	return &bookingUsecase{repo: repo}
 }
 
-func (u *bookingUsecase) CreateBooking(ctx context.Context, userID uuid.UUID, req *request.CreateBookingRequest) (*entity.Booking, error) {
+func (u *bookingUsecase) CreateBooking(ctx context.Context, userID string, req *request.CreateBookingRequest) (*entity.Booking, error) {
 	booking := &entity.Booking{
 		ID:         uuid.New(),
 		UserID:     userID,
@@ -70,7 +70,7 @@ func (u *bookingUsecase) GetAllBookings(ctx context.Context, filter *params.Book
 	return u.repo.GetAll(ctx, filter)
 }
 
-func (u *bookingUsecase) GetUserBookings(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error) {
+func (u *bookingUsecase) GetUserBookings(ctx context.Context, userID string) ([]entity.Booking, error) {
 	return u.repo.GetByUserID(ctx, userID)
 }
 

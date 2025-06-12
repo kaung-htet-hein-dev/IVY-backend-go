@@ -24,12 +24,8 @@ func NewBookingHandler(u usecase.BookingUsecase) *BookingHandler {
 
 func (h *BookingHandler) CreateBooking(c echo.Context, req *request.CreateBookingRequest) error {
 	userID := c.Get("user_id").(string)
-	uid, err := uuid.Parse(userID)
-	if err != nil {
-		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid user ID", err)
-	}
 
-	booking, err := h.usecase.CreateBooking(c.Request().Context(), uid, req)
+	booking, err := h.usecase.CreateBooking(c.Request().Context(), userID, req)
 
 	if err == utils.ErrUserHadBooking {
 		return transport.NewApiErrorResponse(c, http.StatusConflict,
@@ -83,12 +79,8 @@ func (h *BookingHandler) GetAllBookings(c echo.Context) error {
 
 func (h *BookingHandler) GetUserBookings(c echo.Context) error {
 	userID := c.Get("user_id").(string)
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid user ID", err)
-	}
 
-	bookings, err := h.usecase.GetUserBookings(c.Request().Context(), userUUID)
+	bookings, err := h.usecase.GetUserBookings(c.Request().Context(), userID)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get user bookings", err)
 	}

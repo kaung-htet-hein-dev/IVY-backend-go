@@ -8,7 +8,7 @@ import (
 
 type Booking struct {
 	ID         uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	UserID     uuid.UUID `json:"user_id" gorm:"type:uuid;not null"`
+	UserID     string    `json:"user_id" gorm:"type:uuid;not null"`
 	ServiceID  uuid.UUID `json:"service_id" gorm:"type:uuid;not null"`
 	BranchID   uuid.UUID `json:"branch_id" gorm:"type:uuid;not null"`
 	BookedDate string    `json:"booked_date" gorm:"type:varchar(20);not null"`

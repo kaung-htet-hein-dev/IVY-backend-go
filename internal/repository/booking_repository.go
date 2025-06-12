@@ -14,10 +14,10 @@ type BookingRepository interface {
 	Create(ctx context.Context, booking *entity.Booking) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
 	GetAll(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error)
-	GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error)
+	GetByUserID(ctx context.Context, userID string) ([]entity.Booking, error)
 	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
-	CheckSameUserBooking(ctx context.Context, userID uuid.UUID, bookedDate string, bookedTime string) error
+	CheckSameUserBooking(ctx context.Context, userID string, bookedDate string, bookedTime string) error
 	GetBookingTimeSlotByDateAndBranch(ctx context.Context, branchID uuid.UUID, bookedDate string) []string
 	BuildQuery(ctx context.Context, params *params.BookingQueryParams, preloads ...string) *gorm.DB
 }
@@ -67,7 +67,7 @@ func (r *bookingRepository) GetAll(ctx context.Context, filter *params.BookingQu
 	return bookings, err
 }
 
-func (r *bookingRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Booking, error) {
+func (r *bookingRepository) GetByUserID(ctx context.Context, userID string) ([]entity.Booking, error) {
 	var bookings []entity.Booking
 	err := r.db.WithContext(ctx).
 		Where("user_id = ?", userID).
@@ -90,7 +90,7 @@ func (r *bookingRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (r *bookingRepository) CheckSameUserBooking(ctx context.Context, userID uuid.UUID,
+func (r *bookingRepository) CheckSameUserBooking(ctx context.Context, userID string,
 	bookedDate string, bookedTime string) error {
 
 	var count int64
