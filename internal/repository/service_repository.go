@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
 	"context"
+	"log"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -14,7 +16,7 @@ import (
 type ServiceRepository interface {
 	Create(ctx context.Context, service *entity.Service) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Service, error)
-	GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Service, error)
+	GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Service, *transport.PaginationResponse, error)
 	Update(ctx context.Context, id uuid.UUID, updates map[string]interface{}, branches []entity.Branch) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	CheckBranchCategoryExist(ctx context.Context, service *entity.Service) error
@@ -72,23 +74,39 @@ func (r *serviceRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 	return &service, nil
 }
 
-func (r *serviceRepository) GetAll(ctx context.Context, filter *params.ServiceQueryParams) ([]entity.Service, error) {
+func (r *serviceRepository) GetAll(ctx context.Context, params *params.ServiceQueryParams) ([]entity.Service, *transport.PaginationResponse, error) {
 	var services []entity.Service
 
-	query := r.BuildQuery(ctx, filter, "Category", "Branches")
+	// query := r.BuildQuery(ctx, params, "Category", "Branches")
+	query := r.BuildQuery(ctx, params)
 
-	// Filter by branch ID if provided
-	if filter.BranchID != "" {
-		if branchID, err := uuid.Parse(filter.BranchID); err == nil && branchID != uuid.Nil {
+	// Params by branch ID if provided
+	if params.BranchID != "" {
+		if branchID, err := uuid.Parse(params.BranchID); err == nil && branchID != uuid.Nil {
 			query = query.Joins("JOIN branch_service ON services.id = branch_service.service_id").
 				Where("branch_service.branch_id = ?", branchID)
 		}
 	}
 
-	err := query.
-		Find(&services).Error
+	total := int64(0)
 
-	return services, err
+	if err := r.db.WithContext(ctx).Model(&entity.Service{}).Count(&total).Error; err != nil {
+		return nil, nil, utils.HandleGormError(err, "services")
+	}
+
+	pagination := &transport.PaginationResponse{
+		Page:       params.Offset / params.Limit,
+		Limit:      params.Limit,
+		Total:      int(total),
+		TotalPages: int(total) / params.Limit,
+		HasNext:    total > int64(params.Offset+params.Limit),
+		HasPrev:    params.Offset > 0,
+	}
+
+	log.Printf("Pagination: %+v", pagination)
+	err := query.Find(&services).Error
+
+	return services, pagination, err
 }
 
 func (r *serviceRepository) BuildQuery(ctx context.Context, filter *params.ServiceQueryParams, preload ...string) *gorm.DB {
@@ -104,6 +122,8 @@ func (r *serviceRepository) BuildQuery(ctx context.Context, filter *params.Servi
 		stringFilters["price"] = strconv.Itoa(filter.Price)
 	}
 	query.ApplyStringFilters(stringFilters)
+
+	query.ApplyPagination(filter.Limit, filter.Offset)
 
 	query.ApplyUUIDFilter("category_id", filter.CategoryID)
 

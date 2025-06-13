@@ -55,11 +55,12 @@ func (h *ServiceHandler) GetAllServices(c echo.Context) error {
 		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
 	}
 
-	services, err := h.usecase.GetAllServices(c.Request().Context(), filter)
+	services, pagination, err := h.usecase.GetAllServices(c.Request().Context(), filter)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get services", err)
 	}
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "Services retrieved successfully", services)
+
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Services retrieved successfully", services, pagination)
 }
 
 func (h *ServiceHandler) UpdateService(c echo.Context, req *request.UpdateServiceRequest) error {

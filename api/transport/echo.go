@@ -34,19 +34,19 @@ func NewApiErrorResponse(c echo.Context, code int, message string, data interfac
 }
 
 func NewApiSuccessResponse(c echo.Context, code int, message string, data interface{}, opts ...interface{}) error {
-	var pagination PaginationResponse
+	response := echo.Map{
+		"code":    code,
+		"message": message,
+		"data":    data,
+	}
+
 	if len(opts) > 0 {
-		if p, ok := opts[0].(PaginationResponse); ok {
-			pagination = p
+		if p, ok := opts[0].(*PaginationResponse); ok {
+			response["pagination"] = p
 		}
 	}
 
-	return c.JSON(code, echo.Map{
-		"code":       code,
-		"message":    message,
-		"data":       data,
-		"pagination": pagination,
-	})
+	return c.JSON(code, response)
 }
 
 func NewApiCreateSuccessResponse(c echo.Context, message string, data interface{}) error {
