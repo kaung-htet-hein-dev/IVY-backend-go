@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/entity"
@@ -11,7 +12,7 @@ import (
 
 type UserUsecase interface {
 	GetMe(c context.Context, userID string) (*entity.User, error)
-	GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, error)
+	GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, *transport.PaginationResponse, error)
 	UpdateUser(c context.Context, userID string, req *request.UserUpdateRequest) error
 	HandleClerkWebhook(c context.Context, req *request.ClerkWebhookRequest) error
 }
@@ -89,17 +90,17 @@ func (u *userUsecase) GetMe(c context.Context, userID string) (*entity.User, err
 	return user, nil
 }
 
-func (u *userUsecase) GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, error) {
+func (u *userUsecase) GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, *transport.PaginationResponse, error) {
 
-	users, err := u.userRepo.GetUsers(c, filter)
+	users, pagination, err := u.userRepo.GetUsers(c, filter)
 	if err != nil {
 		if err == utils.ErrRecordNotFound {
-			return nil, utils.ErrRecordNotFound
+			return nil, nil, utils.ErrRecordNotFound
 		}
-		return nil, utils.HandleGormError(err, "users")
+		return nil, nil, utils.HandleGormError(err, "users")
 	}
 
-	return users, nil
+	return users, pagination, nil
 }
 
 func (u *userUsecase) UpdateUser(c context.Context, userID string, req *request.UserUpdateRequest) error {

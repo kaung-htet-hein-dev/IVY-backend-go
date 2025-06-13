@@ -16,6 +16,15 @@ type FieldValidationError struct {
 	Message   string      `json:"message"`
 }
 
+type PaginationResponse struct {
+	Page       int  `json:"page"`
+	Limit      int  `json:"limit"`
+	Total      int  `json:"total"`
+	TotalPages int  `json:"total_pages"`
+	HasNext    bool `json:"has_next"`
+	HasPrev    bool `json:"has_prev"`
+}
+
 func NewApiErrorResponse(c echo.Context, code int, message string, data interface{}) error {
 	return c.JSON(code, echo.Map{
 		"code":    code,
@@ -24,11 +33,19 @@ func NewApiErrorResponse(c echo.Context, code int, message string, data interfac
 	})
 }
 
-func NewApiSuccessResponse(c echo.Context, code int, message string, data interface{}) error {
+func NewApiSuccessResponse(c echo.Context, code int, message string, data interface{}, opts ...interface{}) error {
+	var pagination PaginationResponse
+	if len(opts) > 0 {
+		if p, ok := opts[0].(PaginationResponse); ok {
+			pagination = p
+		}
+	}
+
 	return c.JSON(code, echo.Map{
-		"code":    code,
-		"message": message,
-		"data":    data,
+		"code":       code,
+		"message":    message,
+		"data":       data,
+		"pagination": pagination,
 	})
 }
 

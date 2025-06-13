@@ -36,6 +36,7 @@ type UserQueryParams struct {
 	Password    string `query:"password"`
 	PhoneNumber string `query:"phone_number"`
 	Role        string `query:"role"`
+	Verified    bool   `query:"verified"`
 }
 
 func NewUserQueryParams() *UserQueryParams {

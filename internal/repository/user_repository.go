@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
@@ -17,7 +18,7 @@ type UserRepository interface {
 
 	GetUserByID(ctx context.Context, userID string) (*entity.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
-	GetUsers(ctx context.Context, params *params.UserQueryParams, preloads ...string) ([]*entity.User, error)
+	GetUsers(ctx context.Context, params *params.UserQueryParams, preloads ...string) ([]*entity.User, *transport.PaginationResponse, error)
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user *entity.User) error {
@@ -69,7 +70,7 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*ent
 
 func (r *userRepository) GetUsers(ctx context.Context,
 	params *params.UserQueryParams,
-	preloads ...string) ([]*entity.User, error) {
+	preloads ...string) ([]*entity.User, *transport.PaginationResponse, error) {
 
 	query := r.BuildQuery(ctx, params, preloads...)
 
@@ -77,12 +78,27 @@ func (r *userRepository) GetUsers(ctx context.Context,
 
 	if err := query.Find(&users).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, utils.ErrRecordNotFound
+			return nil, nil, utils.ErrRecordNotFound
 		}
-		return nil, utils.HandleGormError(err, "users")
+		return nil, nil, utils.HandleGormError(err, "users")
 	}
 
-	return users, nil
+	total := int64(0)
+
+	if err := r.db.WithContext(ctx).Model(&entity.User{}).Count(&total).Error; err != nil {
+		return nil, nil, utils.HandleGormError(err, "users")
+	}
+
+	pagination := &transport.PaginationResponse{
+		Page:       params.Offset / params.Limit,
+		Limit:      params.Limit,
+		Total:      int(total),
+		TotalPages: int(total) / params.Limit,
+		HasNext:    total > int64(params.Offset+params.Limit),
+		HasPrev:    params.Offset > 0,
+	}
+
+	return users, pagination, nil
 }
 
 type userRepository struct {

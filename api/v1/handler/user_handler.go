@@ -70,12 +70,12 @@ func (h *userHandler) GetAllUsers(c echo.Context) error {
 		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
 	}
 
-	users, err := h.userUsecase.GetAllUsers(c.Request().Context(), filter)
+	users, pagination, err := h.userUsecase.GetAllUsers(c.Request().Context(), filter)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve users", err)
 	}
 
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "Users retrieved successfully", users)
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Users retrieved successfully", users, pagination)
 }
 
 func (h *userHandler) UpdateUser(c echo.Context, req *request.UserUpdateRequest) error {
