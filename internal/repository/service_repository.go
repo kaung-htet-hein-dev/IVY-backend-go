@@ -6,7 +6,6 @@ import (
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
 	"context"
-	"log"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -88,25 +87,16 @@ func (r *serviceRepository) GetAll(ctx context.Context, params *params.ServiceQu
 		}
 	}
 
-	total := int64(0)
-
-	if err := r.db.WithContext(ctx).Model(&entity.Service{}).Count(&total).Error; err != nil {
-		return nil, nil, utils.HandleGormError(err, "services")
+	if err := query.Find(&services).Error; err != nil {
+		return nil, nil, err
 	}
 
-	pagination := &transport.PaginationResponse{
-		Page:       params.Offset / params.Limit,
-		Limit:      params.Limit,
-		Total:      int(total),
-		TotalPages: int(total) / params.Limit,
-		HasNext:    total > int64(params.Offset+params.Limit),
-		HasPrev:    params.Offset > 0,
+	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Service{}, params.Limit, params.Offset)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	log.Printf("Pagination: %+v", pagination)
-	err := query.Find(&services).Error
-
-	return services, pagination, err
+	return services, pagination, nil
 }
 
 func (r *serviceRepository) BuildQuery(ctx context.Context, filter *params.ServiceQueryParams, preload ...string) *gorm.DB {

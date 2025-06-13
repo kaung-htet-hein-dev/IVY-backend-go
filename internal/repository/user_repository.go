@@ -83,19 +83,10 @@ func (r *userRepository) GetUsers(ctx context.Context,
 		return nil, nil, utils.HandleGormError(err, "users")
 	}
 
-	total := int64(0)
-
-	if err := r.db.WithContext(ctx).Model(&entity.User{}).Count(&total).Error; err != nil {
-		return nil, nil, utils.HandleGormError(err, "users")
-	}
-
-	pagination := &transport.PaginationResponse{
-		Page:       params.Offset / params.Limit,
-		Limit:      params.Limit,
-		Total:      int(total),
-		TotalPages: int(total) / params.Limit,
-		HasNext:    total > int64(params.Offset+params.Limit),
-		HasPrev:    params.Offset > 0,
+	// Calculate pagination using the reusable utility
+	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.User{}, params.Limit, params.Offset)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return users, pagination, nil
