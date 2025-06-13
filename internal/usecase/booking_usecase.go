@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/entity"
@@ -16,7 +17,7 @@ import (
 type BookingUsecase interface {
 	CreateBooking(ctx context.Context, userID string, req *request.CreateBookingRequest) (*entity.Booking, error)
 	GetBookingByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
-	GetAllBookings(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error)
+	GetAllBookings(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, *transport.PaginationResponse, error)
 	GetUserBookings(ctx context.Context, userID string) ([]entity.Booking, error)
 	UpdateBooking(ctx context.Context, id uuid.UUID, req *request.UpdateBookingRequest) (*entity.Booking, error)
 	DeleteBooking(ctx context.Context, id uuid.UUID) error
@@ -66,7 +67,7 @@ func (u *bookingUsecase) GetBookingByID(ctx context.Context, id uuid.UUID) (*ent
 	return u.repo.GetByID(ctx, id)
 }
 
-func (u *bookingUsecase) GetAllBookings(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error) {
+func (u *bookingUsecase) GetAllBookings(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, *transport.PaginationResponse, error) {
 	return u.repo.GetAll(ctx, filter)
 }
 

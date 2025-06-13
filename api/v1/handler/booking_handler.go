@@ -69,12 +69,12 @@ func (h *BookingHandler) GetAllBookings(c echo.Context) error {
 		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
 	}
 
-	bookings, err := h.usecase.GetAllBookings(c.Request().Context(), filter)
+	bookings, pagination, err := h.usecase.GetAllBookings(c.Request().Context(), filter)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get bookings", err)
 	}
 
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "Bookings retrieved successfully", bookings)
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Bookings retrieved successfully", bookings, pagination)
 }
 
 func (h *BookingHandler) GetUserBookings(c echo.Context) error {

@@ -30,8 +30,8 @@ func (s *DBSeeder) Seed() error {
 
 	// Seed users
 	usersID := []string{
-		"user_29w83sxmDNGwOuEthce5gg56FcD",
-		"user_2yPXNuQgcVT36bKd4cCKFpztrh2",
+		"user_2ySBbJltMIaupaK9RRAjbm8Gf3S",
+		"user_2ySBUORv85VM2130ZgqtjsVhiTw",
 	}
 
 	// Seed categories

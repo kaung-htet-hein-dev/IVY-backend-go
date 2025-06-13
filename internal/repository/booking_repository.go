@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
@@ -13,7 +14,7 @@ import (
 type BookingRepository interface {
 	Create(ctx context.Context, booking *entity.Booking) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Booking, error)
-	GetAll(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error)
+	GetAll(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, *transport.PaginationResponse, error)
 	GetByUserID(ctx context.Context, userID string) ([]entity.Booking, error)
 	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -59,12 +60,22 @@ func (r *bookingRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 	return &booking, nil
 }
 
-func (r *bookingRepository) GetAll(ctx context.Context, filter *params.BookingQueryParams) ([]entity.Booking, error) {
+func (r *bookingRepository) GetAll(ctx context.Context, params *params.BookingQueryParams) ([]entity.Booking, *transport.PaginationResponse, error) {
 	var bookings []entity.Booking
 
-	query := r.BuildQuery(ctx, filter, "Service", "Branch")
+	query := r.BuildQuery(ctx, params, "Service", "Branch")
 	err := query.Find(&bookings).Error
-	return bookings, err
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Calculate pagination using the reusable utility
+	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Branch{}, params.Limit, params.Offset)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return bookings, pagination, nil
 }
 
 func (r *bookingRepository) GetByUserID(ctx context.Context, userID string) ([]entity.Booking, error) {
