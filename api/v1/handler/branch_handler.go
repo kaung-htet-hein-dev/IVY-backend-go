@@ -50,11 +50,11 @@ func (h *BranchHandler) GetAllBranches(c echo.Context) error {
 		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
 	}
 
-	branches, err := h.usecase.GetAllBranches(c.Request().Context(), filter)
+	branches, pagination, err := h.usecase.GetAllBranches(c.Request().Context(), filter)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get branches", err)
 	}
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "Branches retrieved successfully", branches)
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Branches retrieved successfully", branches, pagination)
 }
 
 func (h *BranchHandler) UpdateBranch(c echo.Context, req *request.UpdateBranchRequest) error {

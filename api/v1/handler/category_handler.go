@@ -52,11 +52,11 @@ func (h *CategoryHandler) GetAllCategories(c echo.Context) error {
 		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "Invalid query parameters", err)
 	}
 
-	categories, err := h.usecase.GetAllCategories(c.Request().Context(), filter)
+	categories, pagination, err := h.usecase.GetAllCategories(c.Request().Context(), filter)
 	if err != nil {
 		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get categories", err)
 	}
-	return transport.NewApiSuccessResponse(c, http.StatusOK, "Categories retrieved successfully", categories)
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "Categories retrieved successfully", categories, pagination)
 }
 
 func (h *CategoryHandler) UpdateCategory(c echo.Context, req *request.UpdateCategoryRequest) error {

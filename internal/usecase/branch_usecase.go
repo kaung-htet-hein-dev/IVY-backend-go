@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/entity"
@@ -14,7 +15,7 @@ import (
 type BranchUsecase interface {
 	CreateBranch(ctx context.Context, req *request.CreateBranchRequest) (*entity.Branch, error)
 	GetBranchByID(ctx context.Context, id uuid.UUID) (*entity.Branch, error)
-	GetAllBranches(ctx context.Context, filter *params.BranchQueryParams) ([]entity.Branch, error)
+	GetAllBranches(ctx context.Context, filter *params.BranchQueryParams) ([]entity.Branch, *transport.PaginationResponse, error)
 	UpdateBranch(ctx context.Context, id uuid.UUID, req *request.UpdateBranchRequest) (*entity.Branch, error)
 	DeleteBranch(ctx context.Context, id uuid.UUID) error
 }
@@ -44,7 +45,7 @@ func (u *branchUsecase) GetBranchByID(ctx context.Context, id uuid.UUID) (*entit
 	return u.repo.GetByID(ctx, id)
 }
 
-func (u *branchUsecase) GetAllBranches(ctx context.Context, filter *params.BranchQueryParams) ([]entity.Branch, error) {
+func (u *branchUsecase) GetAllBranches(ctx context.Context, filter *params.BranchQueryParams) ([]entity.Branch, *transport.PaginationResponse, error) {
 	return u.repo.GetAll(ctx, filter)
 }
 

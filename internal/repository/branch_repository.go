@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
@@ -13,7 +14,7 @@ import (
 type BranchRepository interface {
 	Create(ctx context.Context, branch *entity.Branch) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Branch, error)
-	GetAll(ctx context.Context, filter *params.BranchQueryParams) ([]entity.Branch, error)
+	GetAll(ctx context.Context, filter *params.BranchQueryParams) ([]entity.Branch, *transport.PaginationResponse, error)
 	Update(ctx context.Context, id uuid.UUID, updates interface{}) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	BuildQuery(ctx context.Context, params *params.BranchQueryParams, preloads ...string) *gorm.DB
@@ -40,15 +41,15 @@ func (r *branchRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.B
 	return &branch, nil
 }
 
-func (r *branchRepository) GetAll(ctx context.Context, filter *params.BranchQueryParams) ([]entity.Branch, error) {
+func (r *branchRepository) GetAll(ctx context.Context, params *params.BranchQueryParams) ([]entity.Branch, *transport.PaginationResponse, error) {
 	var branches []entity.Branch
 
-	query := r.BuildQuery(ctx, filter)
+	query := r.BuildQuery(ctx, params)
 
-	if filter.ServiceID != "" {
-		serviceIDUUID, err := uuid.Parse(filter.ServiceID)
+	if params.ServiceID != "" {
+		serviceIDUUID, err := uuid.Parse(params.ServiceID)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		err = query.
@@ -57,13 +58,23 @@ func (r *branchRepository) GetAll(ctx context.Context, filter *params.BranchQuer
 			Find(&branches).Error
 
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		return branches, nil
+		return branches, nil, nil
 	}
 
 	err := query.Find(&branches).Error
-	return branches, err
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Calculate pagination using the reusable utility
+	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Branch{}, params.Limit, params.Offset)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return branches, pagination, nil
 }
 
 func (r *branchRepository) Update(ctx context.Context, id uuid.UUID, updates interface{}) error {

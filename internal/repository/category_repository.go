@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
@@ -14,7 +15,7 @@ import (
 type CategoryRepository interface {
 	Create(ctx context.Context, category *entity.Category) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Category, error)
-	GetAll(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, error)
+	GetAll(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, *transport.PaginationResponse, error)
 	Update(ctx context.Context, category *entity.Category) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	BuildQuery(ctx context.Context, params *params.CategoryQueryParams, preloads ...string) *gorm.DB
@@ -51,15 +52,26 @@ func (r *categoryRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity
 	return &category, nil
 }
 
-func (r *categoryRepository) GetAll(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, error) {
+func (r *categoryRepository) GetAll(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, *transport.PaginationResponse, error) {
 	var categories []entity.Category
 	query := r.BuildQuery(ctx, params)
 	err := query.Find(&categories).Error
-	return categories, err
+	if err != nil {
+		return nil, nil, err
+	}
+	// Calculate pagination using the reusable utility
+	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Category{}, params.Limit, params.Offset)
+	if err != nil {
+		return nil, nil, err
+	}
+	return categories, pagination, nil
 }
 
 func (r *categoryRepository) BuildQuery(ctx context.Context, params *params.CategoryQueryParams, preloads ...string) *gorm.DB {
 	builder := utils.NewQueryBuilder(r.db, ctx)
+
+	builder.ApplyPagination(params.Limit, params.Offset)
+	builder.ApplySorting(params.SortBy, params.SortOrder)
 
 	// Apply string filters
 	builder.ApplyStringFilters(map[string]string{

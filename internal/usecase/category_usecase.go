@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
 	"KaungHtetHein116/IVY-backend/api/v1/request"
 	"KaungHtetHein116/IVY-backend/internal/entity"
@@ -14,7 +15,7 @@ import (
 type CategoryUsecase interface {
 	CreateCategory(ctx context.Context, req *request.CreateCategoryRequest) (*entity.Category, error)
 	GetCategoryByID(ctx context.Context, id uuid.UUID) (*entity.Category, error)
-	GetAllCategories(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, error)
+	GetAllCategories(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, *transport.PaginationResponse, error)
 	UpdateCategory(ctx context.Context, id uuid.UUID, req *request.UpdateCategoryRequest) (*entity.Category, error)
 	DeleteCategory(ctx context.Context, id uuid.UUID) error
 }
@@ -40,7 +41,7 @@ func (u *categoryUsecase) GetCategoryByID(ctx context.Context, id uuid.UUID) (*e
 	return u.repo.GetByID(ctx, id)
 }
 
-func (u *categoryUsecase) GetAllCategories(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, error) {
+func (u *categoryUsecase) GetAllCategories(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, *transport.PaginationResponse, error) {
 	return u.repo.GetAll(ctx, params)
 }
 
