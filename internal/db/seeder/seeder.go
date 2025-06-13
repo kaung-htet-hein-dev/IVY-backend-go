@@ -24,12 +24,15 @@ func NewSeeder(db *gorm.DB) Seeder {
 
 func (s *DBSeeder) Seed() error {
 	// Clear all existing data
-	if err := s.clearTables(); err != nil {
-		return err
-	}
+	// if err := s.clearTables(); err != nil {
+	// 	return err
+	// }
 
 	// Seed users
-	users := make([]entity.User, 0, 10)
+	usersID := []string{
+		"user_29w83sxmDNGwOuEthce5gg56FcD",
+		"user_2yPXNuQgcVT36bKd4cCKFpztrh2",
+	}
 
 	// Seed categories
 	categories, err := s.seedCategories()
@@ -50,7 +53,7 @@ func (s *DBSeeder) Seed() error {
 	}
 
 	// Seed bookings
-	if err := s.seedBookings(users, services, branches); err != nil {
+	if err := s.seedBookings(usersID, services, branches); err != nil {
 		return err
 	}
 
@@ -157,7 +160,7 @@ func (s *DBSeeder) seedServices(categories []entity.Category, branches []entity.
 	return services, nil
 }
 
-func (s *DBSeeder) seedBookings(users []entity.User, services []entity.Service, branches []entity.Branch) error {
+func (s *DBSeeder) seedBookings(usersID []string, services []entity.Service, branches []entity.Branch) error {
 	// Create some bookings with different statuses
 	statuses := []string{"PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"}
 
@@ -176,7 +179,7 @@ func (s *DBSeeder) seedBookings(users []entity.User, services []entity.Service, 
 		// Distribute users, services, branches, times and statuses
 		booking := entity.Booking{
 			ID:         uuid.New(),
-			UserID:     users[i%len(users)].ID,
+			UserID:     usersID[i%len(usersID)],
 			ServiceID:  services[i%len(services)].ID,
 			BranchID:   branches[i%len(branches)].ID,
 			BookedDate: bookingDate.Format("2006-01-02"),

@@ -5,10 +5,13 @@ import (
 	"KaungHtetHein116/IVY-backend/internal/db/seeder"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	// Initialize DB connection
+	godotenv.Load(".env.development")
 	db := config.ConnectDB()
 
 	// Create and run seeder

@@ -113,13 +113,6 @@ func JWTMiddleware() echo.MiddlewareFunc {
 
 			c.Set("user_id", usr.ID)
 
-			// userJson, err := json.Marshal(usr)
-			// if err != nil {
-			// 	log.Printf("Failed to marshal user: %v", err)
-			// } else {
-			// 	log.Printf("User ID: %s, User: %s", usr.ID, userJson)
-			// }
-
 			return next(c)
 		}
 	}
