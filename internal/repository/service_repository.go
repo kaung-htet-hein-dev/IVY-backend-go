@@ -76,8 +76,8 @@ func (r *serviceRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.
 func (r *serviceRepository) GetAll(ctx context.Context, params *params.ServiceQueryParams) ([]entity.Service, *transport.PaginationResponse, error) {
 	var services []entity.Service
 
-	// query := r.BuildQuery(ctx, params, "Category", "Branches")
-	query := r.BuildQuery(ctx, params)
+	query := r.BuildQuery(ctx, params, "Category", "Branches")
+	// query := r.BuildQuery(ctx, params)
 
 	// Params by branch ID if provided
 	if params.BranchID != "" {
@@ -116,6 +116,12 @@ func (r *serviceRepository) BuildQuery(ctx context.Context, filter *params.Servi
 	query.ApplyPagination(filter.Limit, filter.Offset)
 
 	query.ApplyUUIDFilter("category_id", filter.CategoryID)
+
+	if filter.SortBy != "" {
+		query.ApplySorting(filter.SortBy, filter.SortOrder)
+	} else {
+		query.ApplySorting("updated_at", "desc")
+	}
 
 	query.ApplyPreloads(preload...)
 

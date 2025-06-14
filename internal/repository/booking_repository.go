@@ -70,7 +70,7 @@ func (r *bookingRepository) GetAll(ctx context.Context, params *params.BookingQu
 	}
 
 	// Calculate pagination using the reusable utility
-	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Branch{}, params.Limit, params.Offset)
+	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Booking{}, params.Limit, params.Offset)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -160,7 +160,7 @@ func (r *bookingRepository) BuildQuery(ctx context.Context, params *params.Booki
 	if params.SortBy != "" {
 		builder.ApplySorting(params.SortBy, params.SortOrder)
 	} else {
-		builder.ApplySorting("created_at", "desc")
+		builder.ApplySorting("updated_at", "desc")
 	}
 
 	// Apply pagination and preloads

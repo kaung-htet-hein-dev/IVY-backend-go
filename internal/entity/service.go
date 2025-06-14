@@ -16,7 +16,7 @@ type Service struct {
 	Category       Category  `json:"category" gorm:"foreignKey:CategoryID"`
 	Image          string    `json:"image" gorm:"type:varchar(255)"`
 	IsActive       bool      `json:"is_active" gorm:"default:true"`
-	CreatedAt      time.Time `json:"created_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
-	UpdatedAt      time.Time `json:"updated_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt      time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt      time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 	Branches       []Branch  `json:"branches" gorm:"many2many:branch_service;"`
 }

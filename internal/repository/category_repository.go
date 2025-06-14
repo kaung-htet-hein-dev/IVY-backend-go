@@ -71,7 +71,11 @@ func (r *categoryRepository) BuildQuery(ctx context.Context, params *params.Cate
 	builder := utils.NewQueryBuilder(r.db, ctx)
 
 	builder.ApplyPagination(params.Limit, params.Offset)
-	builder.ApplySorting(params.SortBy, params.SortOrder)
+	if params.SortBy != "" {
+		builder.ApplySorting(params.SortBy, params.SortOrder)
+	} else {
+		builder.ApplySorting("updated_at", "desc")
+	}
 
 	// Apply string filters
 	builder.ApplyStringFilters(map[string]string{
@@ -82,7 +86,7 @@ func (r *categoryRepository) BuildQuery(ctx context.Context, params *params.Cate
 }
 
 func (r *categoryRepository) Update(ctx context.Context, category *entity.Category) error {
-	return r.db.WithContext(ctx).Save(category).Error
+	return r.db.WithContext(ctx).Updates(category).Error
 }
 
 func (r *categoryRepository) Delete(ctx context.Context, id uuid.UUID) error {

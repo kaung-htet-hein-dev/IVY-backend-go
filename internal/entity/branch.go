@@ -14,6 +14,6 @@ type Branch struct {
 	Latitude    string    `json:"latitude" gorm:"type:varchar(50)"`
 	PhoneNumber string    `json:"phone_number" gorm:"type:varchar(20)"`
 	Service     []Service `json:"-" gorm:"many2many:branch_service;"`
-	CreatedAt   time.Time `json:"created_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
-	UpdatedAt   time.Time `json:"updated_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }

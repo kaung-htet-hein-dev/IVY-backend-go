@@ -1,6 +1,10 @@
 package request
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type CreateServiceRequest struct {
 	Name           string      `json:"name" validate:"required"`
@@ -23,4 +27,5 @@ type UpdateServiceRequest struct {
 	Image          string      `json:"image"`
 	IsActive       bool        `json:"is_active" validate:"boolean"`
 	BranchIDs      []uuid.UUID `json:"branch_ids" validate:"omitempty,dive,uuid"`
+	UpdatedAt      time.Time   `json:"updated_at" gorm:"autoUpdateTime"`
 }

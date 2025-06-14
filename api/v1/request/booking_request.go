@@ -1,6 +1,8 @@
 package request
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -12,5 +14,6 @@ type CreateBookingRequest struct {
 }
 
 type UpdateBookingRequest struct {
-	Status string `json:"status" validate:"required,oneof=PENDING CONFIRMED CANCELLED COMPLETED"`
+	Status    string    `json:"status" validate:"required,oneof=PENDING CONFIRMED CANCELLED COMPLETED"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }

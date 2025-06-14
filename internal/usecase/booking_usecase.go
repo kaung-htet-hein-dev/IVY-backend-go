@@ -82,7 +82,6 @@ func (u *bookingUsecase) UpdateBooking(ctx context.Context, id uuid.UUID, req *r
 		return nil, err
 	}
 
-	// Update with request data
 	if err := u.repo.Update(ctx, id, req); err != nil {
 		return nil, err
 	}

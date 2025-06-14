@@ -1,5 +1,7 @@
 package request
 
+import "time"
+
 type CreateBranchRequest struct {
 	Name        string `json:"name" validate:"required"`
 	Location    string `json:"location" validate:"required"`
@@ -9,9 +11,10 @@ type CreateBranchRequest struct {
 }
 
 type UpdateBranchRequest struct {
-	Name        string `json:"name"`
-	Location    string `json:"location"`
-	Longitude   string `json:"longitude"`
-	Latitude    string `json:"latitude"`
-	PhoneNumber string `json:"phone_number"`
+	Name        string    `json:"name"`
+	Location    string    `json:"location"`
+	Longitude   string    `json:"longitude"`
+	Latitude    string    `json:"latitude"`
+	PhoneNumber string    `json:"phone_number"`
+	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }

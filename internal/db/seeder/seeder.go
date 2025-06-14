@@ -182,7 +182,7 @@ func (s *DBSeeder) seedBookings(usersID []string, services []entity.Service, bra
 			UserID:     usersID[i%len(usersID)],
 			ServiceID:  services[i%len(services)].ID,
 			BranchID:   branches[i%len(branches)].ID,
-			BookedDate: bookingDate.Format("2006-01-02"),
+			BookedDate: bookingDate.Format("02/01/2006"),
 			BookedTime: timeSlots[i%len(timeSlots)],
 			Status:     statuses[i%len(statuses)],
 		}

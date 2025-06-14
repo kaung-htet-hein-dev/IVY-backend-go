@@ -107,7 +107,7 @@ func (r *branchRepository) BuildQuery(ctx context.Context, params *params.Branch
 	if params.SortBy != "" {
 		builder.ApplySorting(params.SortBy, params.SortOrder)
 	} else {
-		builder.ApplySorting("created_at", "desc")
+		builder.ApplySorting("updated_at", "desc")
 	}
 
 	// Apply pagination and preloads

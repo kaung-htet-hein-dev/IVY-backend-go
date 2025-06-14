@@ -18,7 +18,7 @@ type User struct {
 	Birthday    *string `json:"birthday" gorm:"type:varchar(255)"`
 
 	// auto fields
-	CreatedAt *time.Time `json:"created_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
-	UpdatedAt *time.Time `json:"updated_at" gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt *time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt *time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
