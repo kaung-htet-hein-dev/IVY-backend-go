@@ -18,4 +18,5 @@ type Booking struct {
 	UpdatedAt  time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 	Service    Service   `json:"service" gorm:"foreignKey:ServiceID"`
 	Branch     Branch    `json:"branch" gorm:"foreignKey:BranchID"`
+	Note       *string   `json:"note" gorm:"type:text;default:''"`
 }

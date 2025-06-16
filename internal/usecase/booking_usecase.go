@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"time"
 
 	"KaungHtetHein116/IVY-backend/api/transport"
 	"KaungHtetHein116/IVY-backend/api/v1/params"
@@ -40,9 +39,8 @@ func (u *bookingUsecase) CreateBooking(ctx context.Context, userID string, req *
 		BranchID:   req.BranchID,
 		BookedDate: req.BookedDate,
 		BookedTime: req.BookedTime,
+		Note:       req.Note,
 		Status:     "PENDING",
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
 	}
 
 	// Check if the user already has a booking for this service at this time
