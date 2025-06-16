@@ -16,4 +16,5 @@ type Branch struct {
 	Service     []Service `json:"-" gorm:"many2many:branch_service;"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	IsActive    bool      `json:"is_active" gorm:"default:true"`
 }

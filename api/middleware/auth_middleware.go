@@ -36,7 +36,7 @@ var openRoutes = []paths{
 	},
 	{
 		path:   "/api/v1/branch/:id",
-		method: http.MethodGet,
+		method: http.MethodPut,
 	},
 
 	{

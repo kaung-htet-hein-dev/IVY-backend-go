@@ -8,6 +8,7 @@ type CreateBranchRequest struct {
 	Longitude   string `json:"longitude" validate:"required"`
 	Latitude    string `json:"latitude" validate:"required"`
 	PhoneNumber string `json:"phone_number" validate:"required"`
+	IsActive    bool   `json:"is_active" validate:"omitempty"`
 }
 
 type UpdateBranchRequest struct {
@@ -17,4 +18,5 @@ type UpdateBranchRequest struct {
 	Latitude    string    `json:"latitude"`
 	PhoneNumber string    `json:"phone_number"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	IsActive    *bool     `json:"is_active" validate:"omitempty"`
 }

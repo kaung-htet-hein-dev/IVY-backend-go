@@ -36,6 +36,7 @@ func (u *branchUsecase) CreateBranch(ctx context.Context, req *request.CreateBra
 		Longitude:   req.Longitude,
 		Latitude:    req.Latitude,
 		PhoneNumber: req.PhoneNumber,
+		IsActive:    req.IsActive,
 	}
 	err := u.repo.Create(ctx, branch)
 	return branch, err
