@@ -149,9 +149,11 @@ func (r *bookingRepository) BuildQuery(ctx context.Context, params *params.Booki
 		ApplyUUIDFilter("branch_id", params.BranchID).
 		ApplyUUIDFilter("category_id", params.CategoryID)
 
-	// Apply string filters
+	// Apply status filter (supports comma-separated values)
+	builder.ApplyInFilter("status", params.Status)
+
+	// Apply other string filters
 	builder.ApplyStringFilters(map[string]string{
-		"status":      params.Status,
 		"booked_date": params.BookedDate,
 		"booked_time": params.BookedTime,
 	})

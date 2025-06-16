@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -32,6 +33,22 @@ func (qb *QueryBuilder) ApplyStringFilters(filters map[string]string) *QueryBuil
 	for field, value := range filters {
 		if value != "" {
 			qb.query = qb.query.Where(field+" = ?", value)
+		}
+	}
+	return qb
+}
+
+// ApplyInFilter applies an IN filter for comma-separated values
+func (qb *QueryBuilder) ApplyInFilter(field, value string) *QueryBuilder {
+	if value != "" {
+		values := strings.Split(value, ",")
+		// Trim whitespace from each value
+		for i := range values {
+			values[i] = strings.TrimSpace(values[i])
+		}
+		// Only apply filter if we have non-empty values
+		if len(values) > 0 && values[0] != "" {
+			qb.query = qb.query.Where(field+" IN ?", values)
 		}
 	}
 	return qb
