@@ -16,6 +16,7 @@ type UserHandler interface {
 	GetAllUsers(c echo.Context) error
 	UpdateUser(c echo.Context, req *request.UserUpdateRequest) error
 	ClerkWebhook(c echo.Context) error
+	GetUserByID(c echo.Context) error
 }
 
 type userHandler struct {
@@ -41,6 +42,22 @@ func (h *userHandler) ClerkWebhook(c echo.Context) error {
 	}
 
 	return transport.NewApiSuccessResponse(c, http.StatusOK, "Clerk webhook received successfully", nil)
+}
+
+func (h *userHandler) GetUserByID(c echo.Context) error {
+	userID := c.Param("id")
+	if userID == "" {
+		return transport.NewApiErrorResponse(c, http.StatusBadRequest, "User ID is required", nil)
+	}
+
+	userData, err := h.userUsecase.GetUserByID(c.Request().Context(), userID)
+	if err != nil {
+		if err == utils.ErrRecordNotFound {
+			return transport.NewApiErrorResponse(c, http.StatusNotFound, "User not found", nil)
+		}
+		return transport.NewApiErrorResponse(c, http.StatusInternalServerError, "Failed to get user data", err)
+	}
+	return transport.NewApiSuccessResponse(c, http.StatusOK, "User data retrieved successfully", userData)
 }
 
 func (h *userHandler) GetMe(c echo.Context) error {

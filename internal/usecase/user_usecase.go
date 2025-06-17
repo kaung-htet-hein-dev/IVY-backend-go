@@ -15,6 +15,7 @@ type UserUsecase interface {
 	GetAllUsers(c context.Context, filter *params.UserQueryParams) ([]*entity.User, *transport.PaginationResponse, error)
 	UpdateUser(c context.Context, userID string, req *request.UserUpdateRequest) error
 	HandleClerkWebhook(c context.Context, req *request.ClerkWebhookRequest) error
+	GetUserByID(c context.Context, userID string) (*entity.User, error)
 }
 
 type userUsecase struct {
@@ -76,6 +77,18 @@ func (u *userUsecase) HandleClerkWebhook(c context.Context, req *request.ClerkWe
 	}
 
 	return nil
+}
+
+func (u *userUsecase) GetUserByID(c context.Context, userID string) (*entity.User, error) {
+	user, err := u.userRepo.GetUserByID(c, userID)
+	if err != nil {
+		if err == utils.ErrRecordNotFound {
+			return nil, utils.ErrRecordNotFound
+		}
+		return nil, utils.HandleGormError(err, "user")
+	}
+
+	return user, nil
 }
 
 func (u *userUsecase) GetMe(c context.Context, userID string) (*entity.User, error) {
