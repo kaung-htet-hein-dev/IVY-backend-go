@@ -105,6 +105,7 @@ func (r *userRepository) BuildQuery(ctx context.Context, params *params.UserQuer
 
 	// Apply string filters
 	builder.ApplyStringFilters(map[string]string{
+		"id":           params.ID,
 		"email":        params.Email,
 		"name":         params.Name,
 		"role":         params.Role,

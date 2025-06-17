@@ -31,9 +31,9 @@ func NewBookingQueryParams() *BookingQueryParams {
 
 type UserQueryParams struct {
 	BaseQueryParams
+	ID          string `query:"id"`
 	Name        string `query:"name"`
 	Email       string `query:"email"`
-	Password    string `query:"password"`
 	PhoneNumber string `query:"phone_number"`
 	Role        string `query:"role"`
 	Verified    bool   `query:"verified"`
