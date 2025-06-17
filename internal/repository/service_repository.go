@@ -65,7 +65,7 @@ func (r *serviceRepository) Create(ctx context.Context, service *entity.Service)
 func (r *serviceRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Service, error) {
 	var service entity.Service
 	err := r.db.WithContext(ctx).
-		Preload("Category").
+		Preload("Branches").
 		First(&service, "id = ?", id).Error
 	if err != nil {
 		return nil, err
