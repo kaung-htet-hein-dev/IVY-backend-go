@@ -56,6 +56,7 @@ type BranchQueryParams struct {
 	Location    string `query:"location"`
 	PhoneNumber string `query:"phone_number"`
 	ServiceID   string `query:"service_id"`
+	IsActive    *bool  `query:"is_active"`
 }
 
 func NewBranchQueryParams() *BranchQueryParams {

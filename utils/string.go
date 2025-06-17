@@ -15,3 +15,13 @@ func ParseStringToInt(s string) (int, error) {
 	}
 	return value, nil
 }
+
+func ParseBoolToString(b *bool) string {
+	if b == nil {
+		return ""
+	}
+	if *b {
+		return "true"
+	}
+	return "false"
+}

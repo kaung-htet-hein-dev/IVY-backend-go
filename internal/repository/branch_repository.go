@@ -95,13 +95,19 @@ func (r *branchRepository) Delete(ctx context.Context, id uuid.UUID) error {
 func (r *branchRepository) BuildQuery(ctx context.Context, params *params.BranchQueryParams, preloads ...string) *gorm.DB {
 	builder := utils.NewQueryBuilder(r.db, ctx)
 
-	// Apply string filters
-	builder.ApplyStringFilters(map[string]string{
+	stringFilter := map[string]string{
 		"location":     params.Location,
 		"name":         params.Name,
 		"phone_number": params.PhoneNumber,
 		"service_id":   params.ServiceID,
-	})
+	}
+
+	if params.IsActive != nil {
+		stringFilter["is_active"] = utils.ParseBoolToString(params.IsActive)
+	}
+
+	// Apply string filters
+	builder.ApplyStringFilters(stringFilter)
 
 	// Apply sorting
 	if params.SortBy != "" {
