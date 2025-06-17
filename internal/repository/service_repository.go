@@ -87,12 +87,12 @@ func (r *serviceRepository) GetAll(ctx context.Context, params *params.ServiceQu
 		}
 	}
 
-	if err := query.Find(&services).Error; err != nil {
+	pagination, err := utils.CountAndPaginate(ctx, query, &entity.Service{}, params.Limit, params.Offset)
+	if err != nil {
 		return nil, nil, err
 	}
 
-	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Service{}, params.Limit, params.Offset)
-	if err != nil {
+	if err := query.Find(&services).Error; err != nil {
 		return nil, nil, err
 	}
 

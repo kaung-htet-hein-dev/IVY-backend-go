@@ -64,13 +64,14 @@ func (r *bookingRepository) GetAll(ctx context.Context, params *params.BookingQu
 	var bookings []entity.Booking
 
 	query := r.BuildQuery(ctx, params, "Service", "Branch")
-	err := query.Find(&bookings).Error
+
+	// Calculate pagination using the reusable utility
+	pagination, err := utils.CountAndPaginate(ctx, query, &entity.Booking{}, params.Limit, params.Offset)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Calculate pagination using the reusable utility
-	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Booking{}, params.Limit, params.Offset)
+	err = query.Find(&bookings).Error
 	if err != nil {
 		return nil, nil, err
 	}

@@ -63,13 +63,13 @@ func (r *branchRepository) GetAll(ctx context.Context, params *params.BranchQuer
 		return branches, nil, nil
 	}
 
-	err := query.Find(&branches).Error
+	// Calculate pagination using the reusable utility
+	pagination, err := utils.CountAndPaginate(ctx, query, &entity.Branch{}, params.Limit, params.Offset)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Calculate pagination using the reusable utility
-	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Branch{}, params.Limit, params.Offset)
+	err = query.Find(&branches).Error
 	if err != nil {
 		return nil, nil, err
 	}

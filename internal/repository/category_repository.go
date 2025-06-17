@@ -55,15 +55,18 @@ func (r *categoryRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity
 func (r *categoryRepository) GetAll(ctx context.Context, params *params.CategoryQueryParams) ([]entity.Category, *transport.PaginationResponse, error) {
 	var categories []entity.Category
 	query := r.BuildQuery(ctx, params)
-	err := query.Find(&categories).Error
-	if err != nil {
-		return nil, nil, err
-	}
+
 	// Calculate pagination using the reusable utility
-	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.Category{}, params.Limit, params.Offset)
+	pagination, err := utils.CountAndPaginate(ctx, query, &entity.Category{}, params.Limit, params.Offset)
 	if err != nil {
 		return nil, nil, err
 	}
+
+	err = query.Find(&categories).Error
+	if err != nil {
+		return nil, nil, err
+	}
+
 	return categories, pagination, nil
 }
 

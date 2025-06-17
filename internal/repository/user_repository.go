@@ -76,17 +76,15 @@ func (r *userRepository) GetUsers(ctx context.Context,
 
 	var users []*entity.User
 
-	if err := query.Find(&users).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil, utils.ErrRecordNotFound
-		}
-		return nil, nil, utils.HandleGormError(err, "users")
-	}
-
 	// Calculate pagination using the reusable utility
-	pagination, err := utils.CountAndPaginate(ctx, r.db, &entity.User{}, params.Limit, params.Offset)
+	pagination, err := utils.CountAndPaginate(ctx, query, &entity.User{}, params.Limit, params.Offset)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	err = query.Find(&users).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil, utils.ErrRecordNotFound
 	}
 
 	return users, pagination, nil
