@@ -36,8 +36,8 @@ WORKDIR /app
 # Copy binary from build stage
 COPY --from=build /app/main .
 
-# Copy environment file (create this file)
-COPY .env.development .
+# Don't copy .env files - use environment variables instead
+# Environment variables will be provided by the deployment platform
 
 # Make binary executable and change ownership
 RUN chmod +x main && chown appuser:appgroup main
@@ -52,5 +52,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
-# Run the application with prod command
+# Run the application with dev command
 CMD ["./main", "dev"]

@@ -11,9 +11,10 @@ import (
 var StartProdCmd = &cobra.Command{
 	Use: "prod",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Load .env.production for production environment
+		// Try to load .env.production, but don't fail if it doesn't exist
+		// In production (like Render), environment variables should be set directly
 		if err := godotenv.Load(".env.production"); err != nil {
-			log.Fatal("Error loading .env.production file")
+			log.Println("Warning: .env.production file not found, using environment variables")
 		}
 
 		api.StartServer()
