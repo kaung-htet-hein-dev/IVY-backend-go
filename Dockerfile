@@ -36,8 +36,8 @@ WORKDIR /app
 # Copy binary from build stage
 COPY --from=build /app/main .
 
-# Copy environment file (create this file)
-COPY .env.production .
+# Don't copy .env files - use environment variables instead
+# Environment variables will be provided by the deployment platform
 
 # Make binary executable and change ownership
 RUN chmod +x main && chown appuser:appgroup main
