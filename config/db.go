@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"KaungHtetHein116/IVY-backend/internal/entity"
-
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/gommon/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -16,40 +16,42 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() *gorm.DB {
-	dns := getDSN()
+	// Build DSN
+	dsn := getDSN()
 
-	db, err := gorm.Open(postgres.Open(dns), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+	// Parse pgx config
+	cfg, err := pgx.ParseConfig(dsn)
+	if err != nil {
+		log.Fatalf("Failed to parse DSN: %v", err)
+	}
+
+	// Use simple protocol to avoid prepared statements
+	cfg.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+
+	// Open stdlib DB connection
+	sqlDB := stdlib.OpenDB(*cfg)
+
+	// Open GORM DB with custom connection
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{
+		Logger:      logger.Default.LogMode(logger.Info),
+		PrepareStmt: false, // make sure GORM doesn't prepare statements either
 	})
-
 	if err != nil {
-		log.Fatalf("Failed to connect to database %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	sqlDB, err := db.DB()
-
-	sqlDB.SetMaxOpenConns(25)                 // Max open connections
-	sqlDB.SetMaxIdleConns(25)                 // Max idle connections
-	sqlDB.SetConnMaxLifetime(5 * time.Minute) // Connection lifetime
-
+	// Set connection pool settings
+	rawDB, err := db.DB()
 	if err != nil {
-		log.Fatalf("Failed to connect to database %v", err)
+		log.Fatalf("Failed to get raw DB: %v", err)
 	}
-
-	err = db.AutoMigrate(
-		&entity.User{},
-		&entity.Branch{},
-		&entity.Category{},
-		&entity.Service{},
-		&entity.Booking{},
-	)
-
-	if err != nil {
-		log.Fatalf("Failed to migrate database %v", err)
-	}
+	rawDB.SetMaxOpenConns(25)
+	rawDB.SetMaxIdleConns(25)
+	rawDB.SetConnMaxLifetime(5 * time.Minute)
 
 	DB = db
-
 	return DB
 }
 
@@ -59,8 +61,13 @@ func getDSN() string {
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
+	sslmode := os.Getenv("SSL_MODE")
+	if sslmode == "" {
+		sslmode = "require"
+	}
 
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	return dsn
+	return fmt.Sprintf(
+		"user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
+		user, password, host, port, dbname, sslmode,
+	)
 }
