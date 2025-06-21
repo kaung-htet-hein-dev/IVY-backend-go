@@ -24,6 +24,8 @@ func init() {
 func StartServer() {
 	clerk.SetKey(os.Getenv("CLERK_SECRET_KEY"))
 
+	log.Info("Starting IVY Backend Server...", os.Getenv("CLERK_SECRET_KEY"))
+
 	db := config.ConnectDB()
 
 	e := echo.New()
