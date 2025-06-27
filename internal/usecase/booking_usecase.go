@@ -112,6 +112,16 @@ func getAvailableTimeSlots(takenTimeSlots []string) []Slot {
 		"11:00 AM": 0,
 		"11:30 AM": 0,
 		"12:00 PM": 0,
+		"12:30 PM": 0,
+		"01:00 PM": 0,
+		"01:30 PM": 0,
+		"02:00 PM": 0,
+		"02:30 PM": 0,
+		"03:00 PM": 0,
+		"03:30 PM": 0,
+		"04:00 PM": 0,
+		"04:30 PM": 0,
+		"05:00 PM": 0,
 	}
 
 	available := make([]Slot, 0)
