@@ -11,10 +11,10 @@ func RegisterBasicMiddlewares(e *echo.Echo) {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Secure())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001"},
+		AllowOrigins:     []string{"http://localhost:*", "https://ivy-dashboard.vercel.app", "https://ivy-frontend-xi.vercel.app"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
-		AllowCredentials: true, // Important for cookies
+		AllowCredentials: true,
 	}))
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `${time_rfc3339} ${status} ${method} ${uri} ${latency_human}` + "\n",
@@ -26,5 +26,4 @@ func RegisterBasicMiddlewares(e *echo.Echo) {
 			"message": "Welcome to IVY API",
 		})
 	})
-
 }
