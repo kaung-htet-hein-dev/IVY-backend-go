@@ -8,6 +8,11 @@ build:
 clean:
 	rm -rf bin/ tmp/
 
+# Local server
+local:
+	docker compose --env-file .env.local up -d db
+	go run main.go local
+
 # Development server
 dev:
 	docker compose --env-file .env.development up -d db
