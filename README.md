@@ -2,48 +2,11 @@
 
 A modern, scalable backend service for managing hair studio appointment bookings built with Go, following Clean Architecture principles and integrated with Clerk for authentication.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 This project implements **Clean Architecture** ensuring separation of concerns, testability, and maintainability. The architecture is designed to be independent of external frameworks, databases, and third-party services.
 
-### Architecture Layers
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                 🌐 Presentation Layer                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │   API Routes    │  │   Middlewares   │  │   Handlers   │ │
-│  │   (Echo HTTP)   │  │   (Auth/CORS)   │  │  (REST API)  │ │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-                                │
-┌─────────────────────────────────────────────────────────────┐
-│               💼 Application/Business Layer                 │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │   Use Cases     │  │   Validation    │  │   Business   │ │
-│  │   (Services)    │  │    Rules        │  │    Logic     │ │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-                                │
-┌─────────────────────────────────────────────────────────────┐
-│                  🎯 Domain Layer                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │    Entities     │  │   Interfaces    │  │ Domain Rules │ │
-│  │ (User, Booking) │  │  (Contracts)    │  │ & Constants  │ │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-                                │
-┌─────────────────────────────────────────────────────────────┐
-│               🔧 Infrastructure Layer                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │   Database      │  │   External      │  │   Utilities  │ │
-│  │  (PostgreSQL)   │  │   Services      │  │  & Helpers   │ │
-│  │   Repository    │  │   (Clerk)       │  │              │ │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── main.go                    # Application entry point
@@ -52,7 +15,7 @@ This project implements **Clean Architecture** ensuring separation of concerns, 
 ├── init.sql                   # Database initialization
 ├── go.mod & go.sum           # Go modules
 │
-├── 🌐 api/                   # Presentation Layer
+├── api/                   # Presentation Layer
 │   ├── echo_server.go        # Echo framework setup
 │   ├── middleware/           # HTTP middlewares
 │   │   ├── auth_middleware.go # Clerk JWT authentication
@@ -65,15 +28,15 @@ This project implements **Clean Architecture** ensuring separation of concerns, 
 │       ├── params/          # Query parameter structs
 │       └── request/         # Request payload structs
 │
-├── 🚀 cmd/                  # Application commands
+├── cmd/                  # Application commands
 │   ├── main.go             # Main application entry
 │   ├── seed/               # Database seeding utility
 │   └── server/             # Server configuration (dev/prod)
 │
-├── ⚙️ config/               # Configuration management
+├── config/               # Configuration management
 │   └── db.go              # Database configuration
 │
-├── 🏛️ internal/             # Internal application packages
+├── internal/             # Internal application packages
 │   ├── entity/            # 🎯 Domain entities (Clean Architecture Core)
 │   │   ├── user.go        # User entity with Clerk integration
 │   │   ├── booking.go     # Booking entity
@@ -95,10 +58,10 @@ This project implements **Clean Architecture** ensuring separation of concerns, 
 │   ├── db/                # Database utilities
 │   │   └── seeder/        # Database seeding
 │
-├── 📦 pkg/                 # Public/shared packages
+├── pkg/                 # Public/shared packages
 │   └── constants/         # Application constants & messages
 │
-└── 🛠️ utils/               # Utility functions
+└── utils/               # Utility functions
     ├── error_handler.go   # Error handling utilities
     ├── gorm_errors.go     # GORM-specific error handling
     ├── jwt.go             # JWT utilities (legacy, Clerk handles this)
@@ -109,7 +72,7 @@ This project implements **Clean Architecture** ensuring separation of concerns, 
     └── validator.go       # Input validation
 ```
 
-## 🔐 Authentication with Clerk
+## Authentication with Clerk
 
 This application uses **Clerk** as the authentication service, providing enterprise-grade authentication without the complexity of managing user credentials.
 
@@ -136,7 +99,7 @@ The system handles these Clerk webhook events:
 - `user.updated` - Updates existing user information
 - `user.deleted` - Soft deletes user from local database
 
-## 📊 Database Schema & Relations
+## Database Schema & Relations
 
 ### Core Entities
 
@@ -218,9 +181,9 @@ Services (1) ←→ (N) Bookings
 Branches (1) ←→ (N) Bookings
 ```
 
-## 🛣️ API Endpoints
+## API Endpoints
 
-### 👤 User Management
+### User Management
 
 - `GET /api/v1/user` - List all users (Admin only)
 - `GET /api/v1/user/me` - Get current user profile (Authenticated)
@@ -228,7 +191,7 @@ Branches (1) ←→ (N) Bookings
 - `PUT /api/v1/user/:id` - Update user profile (Owner/Admin)
 - `POST /api/v1/user/clerk-user-webhook` - Clerk webhook endpoint (Public)
 
-### 🏢 Branch Management
+### Branch Management
 
 - `GET /api/v1/branch` - List all branches (Public)
 - `GET /api/v1/branch/:id` - Get branch details (Public)
@@ -236,7 +199,7 @@ Branches (1) ←→ (N) Bookings
 - `PUT /api/v1/branch/:id` - Update branch (Admin only)
 - `DELETE /api/v1/branch/:id` - Delete branch (Admin only)
 
-### 📂 Category Management
+### Category Management
 
 - `GET /api/v1/category` - List all categories (Public)
 - `GET /api/v1/category/:id` - Get category details (Public)
@@ -244,7 +207,7 @@ Branches (1) ←→ (N) Bookings
 - `PUT /api/v1/category/:id` - Update category (Admin only)
 - `DELETE /api/v1/category/:id` - Delete category (Admin only)
 
-### 🛍️ Service Management
+### Service Management
 
 - `GET /api/v1/service` - List all services with filters (Public)
 - `GET /api/v1/service/:id` - Get service details (Public)
@@ -252,7 +215,7 @@ Branches (1) ←→ (N) Bookings
 - `PUT /api/v1/service/:id` - Update service (Admin only)
 - `DELETE /api/v1/service/:id` - Delete service (Admin only)
 
-### 📅 Booking Management
+### Booking Management
 
 - `GET /api/v1/booking` - List all bookings with filters (Admin/Staff)
 - `GET /api/v1/booking/me` - Get user's bookings (Authenticated)
@@ -262,7 +225,7 @@ Branches (1) ←→ (N) Bookings
 - `PUT /api/v1/booking/:id` - Update booking (Owner/Admin)
 - `DELETE /api/v1/booking/:id` - Cancel booking (Owner/Admin)
 
-### 🔒 Authentication Middleware
+### Authentication Middleware
 
 Routes are protected based on user roles:
 
@@ -271,7 +234,7 @@ Routes are protected based on user roles:
 - **Admin**: Admin role required
 - **Owner**: Resource owner or admin access required
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend Framework
 
@@ -297,7 +260,7 @@ Routes are protected based on user roles:
 - **Air**: Live reloading for development
 - **Makefile**: Build automation
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -384,7 +347,7 @@ make migrate
 make seed
 ```
 
-## 🔍 Query & Filtering
+## Query & Filtering
 
 The API supports advanced filtering and pagination:
 
@@ -405,7 +368,7 @@ The API supports advanced filtering and pagination:
 GET /api/v1/booking?status=PENDING,CONFIRMED&branch_id=123&limit=10&offset=0&sort_by=created_at&sort_order=desc
 ```
 
-## 🔒 Security Features
+## Security Features
 
 ### Authentication Security
 
@@ -430,23 +393,7 @@ GET /api/v1/booking?status=PENDING,CONFIRMED&branch_id=123&limit=10&offset=0&sor
 - **Pagination**: Memory-efficient data loading
 - **Preloading**: Eager loading of related entities
 
-## 🧪 Testing
-
-```bash
-# Run all tests
-make test
-
-# Run tests with coverage report
-make test-coverage
-
-# Run specific package tests
-go test ./internal/usecase/...
-
-# Run integration tests
-make test-integration
-```
-
-## 🚀 Deployment
+## Deployment
 
 ### Docker Deployment
 
