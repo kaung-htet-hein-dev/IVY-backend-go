@@ -9,67 +9,67 @@ This project implements **Clean Architecture** ensuring separation of concerns, 
 ## Project Structure
 
 ```
-├── main.go                    # Application entry point
-├── docker-compose.yml         # Docker services configuration
-├── Makefile                   # Build and deployment scripts
-├── init.sql                   # Database initialization
-├── go.mod & go.sum           # Go modules
+├── main.go                      # Application entry point
+├── docker-compose.yml           # Docker services configuration
+├── Makefile                     # Build and deployment scripts
+├── init.sql                     # Database initialization
+├── go.mod & go.sum              # Go modules
 │
-├── api/                   # Presentation Layer
-│   ├── echo_server.go        # Echo framework setup
-│   ├── middleware/           # HTTP middlewares
-│   │   ├── auth_middleware.go # Clerk JWT authentication
-│   │   └── basic_middleware.go # CORS, logging, etc.
-│   ├── transport/            # Response structures
-│   │   └── echo.go          # Response formatting
-│   └── v1/                  # API version 1
-│       ├── routes.go        # Route definitions
-│       ├── handler/         # HTTP request handlers
-│       ├── params/          # Query parameter structs
-│       └── request/         # Request payload structs
+├── api/                         # Presentation Layer
+│   ├── echo_server.go           # Echo framework setup
+│   ├── middleware/              # HTTP middlewares
+│   │   ├── auth_middleware.go   # Clerk JWT authentication
+│   │   └── basic_middleware.go  # CORS, logging, etc.
+│   ├── transport/               # Response structures
+│   │   └── echo.go              # Response formatting
+│   └── v1/                      # API version 1
+│       ├── routes.go            # Route definitions
+│       ├── handler/             # HTTP request handlers
+│       ├── params/              # Query parameter structs
+│       └── request/             # Request payload structs
 │
-├── cmd/                  # Application commands
-│   ├── main.go             # Main application entry
-│   ├── seed/               # Database seeding utility
-│   └── server/             # Server configuration (dev/prod)
+├── cmd/                         # Application commands
+│   ├── main.go                  # Main application entry
+│   ├── seed/                    # Database seeding utility
+│   └── server/                  # Server configuration (dev/prod)
 │
-├── config/               # Configuration management
-│   └── db.go              # Database configuration
+├── config/                      # Configuration management
+│   └── db.go                    # Database configuration
 │
-├── internal/             # Internal application packages
-│   ├── entity/            # 🎯 Domain entities (Clean Architecture Core)
-│   │   ├── user.go        # User entity with Clerk integration
-│   │   ├── booking.go     # Booking entity
-│   │   ├── service.go     # Service entity
-│   │   ├── branch.go      # Branch entity
-│   │   └── category.go    # Category entity
-│   ├── repository/        # 🔧 Data access layer implementations
+├── internal/                    # Internal application packages
+│   ├── entity/                  # Domain entities (Clean Architecture Core)
+│   │   ├── user.go              # User entity with Clerk integration
+│   │   ├── booking.go           # Booking entity
+│   │   ├── service.go           # Service entity
+│   │   ├── branch.go            # Branch entity
+│   │   └── category.go          # Category entity
+│   ├── repository/              # Data access layer implementations
 │   │   ├── user_repository.go
 │   │   ├── booking_repository.go
 │   │   ├── service_repository.go
 │   │   ├── branch_repository.go
 │   │   └── category_repository.go
-│   ├── usecase/           # 💼 Business logic implementation
-│   │   ├── user_usecase.go     # Handles Clerk webhooks
-│   │   ├── booking_usecase.go  # Booking business logic
+│   ├── usecase/                 # Business logic implementation
+│   │   ├── user_usecase.go      # Handles Clerk webhooks
+│   │   ├── booking_usecase.go   # Booking business logic
 │   │   ├── service_usecase.go
 │   │   ├── branch_usecase.go
 │   │   └── category_usecase.go
-│   ├── db/                # Database utilities
-│   │   └── seeder/        # Database seeding
+│   ├── db/                      # Database utilities
+│   │   └── seeder/              # Database seeding
 │
-├── pkg/                 # Public/shared packages
-│   └── constants/         # Application constants & messages
+├── pkg/                         # Public/shared packages
+│   └── constants/               # Application constants & messages
 │
-└── utils/               # Utility functions
-    ├── error_handler.go   # Error handling utilities
-    ├── gorm_errors.go     # GORM-specific error handling
-    ├── jwt.go             # JWT utilities (legacy, Clerk handles this)
-    ├── pagination.go      # Database pagination
-    ├── password.go        # Password utilities
-    ├── query_builder.go   # Dynamic query building
-    ├── string.go          # String utilities
-    └── validator.go       # Input validation
+└── utils/                       # Utility functions
+    ├── error_handler.go         # Error handling utilities
+    ├── gorm_errors.go           # GORM-specific error handling
+    ├── jwt.go                   # JWT utilities (legacy, Clerk handles this)
+    ├── pagination.go            # Database pagination
+    ├── password.go              # Password utilities
+    ├── query_builder.go         # Dynamic query building
+    ├── string.go                # String utilities
+    └── validator.go             # Input validation
 ```
 
 ## Authentication with Clerk
@@ -384,7 +384,7 @@ GET /api/v1/booking?status=PENDING,CONFIRMED&branch_id=123&limit=10&offset=0&sor
 - **Error Handling**: Secure error responses
 - **HTTPS Enforcement**: TLS encryption
 
-## 📈 Performance Optimizations
+## Performance Optimizations
 
 ### Database Optimizations
 
