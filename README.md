@@ -1,76 +1,18 @@
 # IVY Backend - IVY Hair Studio Booking Management System
 
+## Entity Relationship Diagram (ERD)
+
+Below is the ERD for the IVY Hair Studio Booking Management System:
+
+![ERD](./erd.png)
+
+The ERD illustrates the relationships between users, bookings, services, categories, branches, and the service_branch junction table. Each booking is linked to a user, service, and branch. Services belong to categories and can be offered at multiple branches via the service_branch table.
+
 A modern, scalable backend service for managing hair studio appointment bookings built with Go, following Clean Architecture principles and integrated with Clerk for authentication.
 
 ## Architecture Overview
 
 This project implements **Clean Architecture** ensuring separation of concerns, testability, and maintainability. The architecture is designed to be independent of external frameworks, databases, and third-party services.
-
-## Project Structure
-
-```
-├── main.go                      # Application entry point
-├── docker-compose.yml           # Docker services configuration
-├── Makefile                     # Build and deployment scripts
-├── init.sql                     # Database initialization
-├── go.mod & go.sum              # Go modules
-│
-├── api/                         # Presentation Layer
-│   ├── echo_server.go           # Echo framework setup
-│   ├── middleware/              # HTTP middlewares
-│   │   ├── auth_middleware.go   # Clerk JWT authentication
-│   │   └── basic_middleware.go  # CORS, logging, etc.
-│   ├── transport/               # Response structures
-│   │   └── echo.go              # Response formatting
-│   └── v1/                      # API version 1
-│       ├── routes.go            # Route definitions
-│       ├── handler/             # HTTP request handlers
-│       ├── params/              # Query parameter structs
-│       └── request/             # Request payload structs
-│
-├── cmd/                         # Application commands
-│   ├── main.go                  # Main application entry
-│   ├── seed/                    # Database seeding utility
-│   └── server/                  # Server configuration (dev/prod)
-│
-├── config/                      # Configuration management
-│   └── db.go                    # Database configuration
-│
-├── internal/                    # Internal application packages
-│   ├── entity/                  # Domain entities (Clean Architecture Core)
-│   │   ├── user.go              # User entity with Clerk integration
-│   │   ├── booking.go           # Booking entity
-│   │   ├── service.go           # Service entity
-│   │   ├── branch.go            # Branch entity
-│   │   └── category.go          # Category entity
-│   ├── repository/              # Data access layer implementations
-│   │   ├── user_repository.go
-│   │   ├── booking_repository.go
-│   │   ├── service_repository.go
-│   │   ├── branch_repository.go
-│   │   └── category_repository.go
-│   ├── usecase/                 # Business logic implementation
-│   │   ├── user_usecase.go      # Handles Clerk webhooks
-│   │   ├── booking_usecase.go   # Booking business logic
-│   │   ├── service_usecase.go
-│   │   ├── branch_usecase.go
-│   │   └── category_usecase.go
-│   ├── db/                      # Database utilities
-│   │   └── seeder/              # Database seeding
-│
-├── pkg/                         # Public/shared packages
-│   └── constants/               # Application constants & messages
-│
-└── utils/                       # Utility functions
-    ├── error_handler.go         # Error handling utilities
-    ├── gorm_errors.go           # GORM-specific error handling
-    ├── jwt.go                   # JWT utilities (legacy, Clerk handles this)
-    ├── pagination.go            # Database pagination
-    ├── password.go              # Password utilities
-    ├── query_builder.go         # Dynamic query building
-    ├── string.go                # String utilities
-    └── validator.go             # Input validation
-```
 
 ## Authentication with Clerk
 
@@ -98,88 +40,6 @@ The system handles these Clerk webhook events:
 - `user.created` - Creates new user record in local database
 - `user.updated` - Updates existing user information
 - `user.deleted` - Soft deletes user from local database
-
-## Database Schema & Relations
-
-### Core Entities
-
-#### 1. **Users** (Clerk Integration)
-
-```go
-type User struct {
-    ID        string     // Clerk User ID
-    FirstName string
-    LastName  string
-    Email     string     // Unique, synced from Clerk
-    Verified  bool       // Email verification status
-    Role      *string    // USER | ADMIN
-    // ... additional profile fields
-}
-```
-
-#### 2. **Categories**
-
-```go
-type Category struct {
-    ID   uuid.UUID
-    Name string // Service category name
-}
-```
-
-#### 3. **Services**
-
-```go
-type Service struct {
-    ID             uuid.UUID
-    Name           string
-    Description    string
-    DurationMinute int       // Service duration
-    Price          int       // Service price
-    CategoryID     uuid.UUID // Foreign key to Category
-    Category       Category  // Belongs to relationship
-    Branches       []Branch  // Many-to-many relationship
-}
-```
-
-#### 4. **Branches**
-
-```go
-type Branch struct {
-    ID          uuid.UUID
-    Name        string
-    Location    string
-    Longitude   string  // GPS coordinates
-    Latitude    string
-    PhoneNumber string
-    Service     []Service // Many-to-many relationship
-}
-```
-
-#### 5. **Bookings**
-
-```go
-type Booking struct {
-    ID         uuid.UUID
-    UserID     string    // Foreign key to User (Clerk ID)
-    ServiceID  uuid.UUID // Foreign key to Service
-    BranchID   uuid.UUID // Foreign key to Branch
-    BookedDate string    // Appointment date
-    BookedTime string    // Appointment time
-    Status     string    // PENDING | CONFIRMED | CANCELLED | COMPLETED
-    Service    Service   // Belongs to relationship
-    Branch     Branch    // Belongs to relationship
-}
-```
-
-### Database Relations
-
-```
-Users (1) ←→ (N) Bookings
-Categories (1) ←→ (N) Services
-Services (N) ←→ (N) Branches (junction: branch_service)
-Services (1) ←→ (N) Bookings
-Branches (1) ←→ (N) Bookings
-```
 
 ## API Endpoints
 
