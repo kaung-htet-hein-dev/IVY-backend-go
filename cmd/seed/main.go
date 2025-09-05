@@ -3,6 +3,7 @@ package main
 import (
 	"KaungHtetHein116/IVY-backend/config"
 	"KaungHtetHein116/IVY-backend/internal/db/seeder"
+	"KaungHtetHein116/IVY-backend/internal/entity"
 	"log"
 	"os"
 
@@ -11,8 +12,16 @@ import (
 
 func main() {
 	// Initialize DB connection
-	godotenv.Load(".env.development")
+	godotenv.Load(".env.local")
 	db := config.ConnectDB()
+
+	db.AutoMigrate(
+		&entity.Booking{},
+		&entity.Branch{},
+		&entity.Category{},
+		&entity.Service{},
+		&entity.User{},
+	)
 
 	// Create and run seeder
 	dbSeeder := seeder.NewSeeder(db)

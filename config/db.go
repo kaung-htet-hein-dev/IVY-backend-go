@@ -16,33 +16,29 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() *gorm.DB {
-	// Build DSN
 	dsn := getDSN()
 
-	// Parse pgx config
+	log.Printf("Connecting to database with DSN: %s", dsn)
+
 	cfg, err := pgx.ParseConfig(dsn)
 	if err != nil {
 		log.Fatalf("Failed to parse DSN: %v", err)
 	}
 
-	// Use simple protocol to avoid prepared statements
 	cfg.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
-	// Open stdlib DB connection
 	sqlDB := stdlib.OpenDB(*cfg)
 
-	// Open GORM DB with custom connection
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{
 		Logger:      logger.Default.LogMode(logger.Info),
-		PrepareStmt: false, // make sure GORM doesn't prepare statements either
+		PrepareStmt: false,
 	})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	// Set connection pool settings
 	rawDB, err := db.DB()
 	if err != nil {
 		log.Fatalf("Failed to get raw DB: %v", err)

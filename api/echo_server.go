@@ -4,6 +4,7 @@ import (
 	"KaungHtetHein116/IVY-backend/api/middleware"
 	v1 "KaungHtetHein116/IVY-backend/api/v1"
 	"KaungHtetHein116/IVY-backend/config"
+	"KaungHtetHein116/IVY-backend/internal/entity"
 	"KaungHtetHein116/IVY-backend/utils"
 	"os"
 
@@ -25,6 +26,14 @@ func StartServer() {
 	clerk.SetKey(os.Getenv("CLERK_SECRET_KEY"))
 
 	db := config.ConnectDB()
+
+	db.AutoMigrate(
+		&entity.Booking{},
+		&entity.Branch{},
+		&entity.Category{},
+		&entity.Service{},
+		&entity.User{},
+	)
 
 	e := echo.New()
 	e.Validator = &utils.CustomValidator{Validator: validator.New()}

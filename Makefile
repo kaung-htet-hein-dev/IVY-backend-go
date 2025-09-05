@@ -11,7 +11,7 @@ clean:
 # Local server
 local:
 	docker compose --env-file .env.local up -d db
-	go run main.go local
+	air dev
 
 # Development server
 dev:
@@ -23,9 +23,9 @@ prod:
 	docker compose --env-file .env.production up -d db
 	go run main.go prod
 
-# Air development server with hot reload
+# Air local server with hot reload
 air-dev:
-	docker compose --env-file .env.development up -d db
+	docker compose -f docker-compose.local.yml --env-file .env.local up -d db
 	air -c .air.toml dev
 
 # Air production server with hot reload
@@ -33,9 +33,9 @@ air-prod:
 	docker compose --env-file .env.production up -d db
 	GO_ENV=production air
 
-# Run database migrations
-migrate:
-	go run cmd/main.go migrate
+# # Run database migrations
+# migrate:
+# 	go run cmd/main.go migrate
 
 # Seed database
 seed:
