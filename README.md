@@ -131,81 +131,37 @@ Routes are protected based on user roles:
 
 ### Installation
 
-1. **Clone the repository**
+1. **Install prerequisites**
+
+   - **Make**
+
+     - macOS: `brew install make`
+     - Ubuntu/Debian: `sudo apt-get install make`
+     - Windows: [Install via Chocolatey or download from GNU](https://www.gnu.org/software/make/)
+
+   - **Docker & Docker Compose**
+     - [Download Docker Desktop](https://www.docker.com/products/docker-desktop/)
+     - Or install via package manager for your OS
+
+2. **Clone the repository**
 
    ```bash
    git clone <repository-url>
    cd ivy-backend
    ```
 
-2. **Environment Setup**
+3. **Environment Setup**
 
    ```bash
-   cp .env.example .env
+   cp .env.local .env
    # Edit .env with your configuration
    ```
 
-3. **Clerk Configuration**
-
-   ```env
-   CLERK_SECRET_KEY=your_clerk_secret_key
-   CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-   CLERK_WEBHOOK_SECRET=your_webhook_secret
-   ```
-
-4. **Database Configuration**
-
-   ```env
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_USER=your_user
-   DB_PASSWORD=your_password
-   DB_NAME=ivy_db
-   ```
-
-5. **Start Services**
+4. **Start local development server**
 
    ```bash
-   # Start database
-   docker-compose up -d postgres
-
-   # Install dependencies
-   go mod tidy
-
-   # Run migrations
-   make migrate
-
-   # Seed database (optional)
-   make seed
-
-   # Start development server
-   make dev
+   make air-dev
    ```
-
-### Development Commands
-
-```bash
-# Start development server with hot reload
-make dev
-
-# Run tests
-make test
-
-# Run tests with coverage
-make test-coverage
-
-# Build production binary
-make build
-
-# Clean build artifacts
-make clean
-
-# Run database migrations
-make migrate
-
-# Seed database with sample data
-make seed
-```
 
 ## Query & Filtering
 
