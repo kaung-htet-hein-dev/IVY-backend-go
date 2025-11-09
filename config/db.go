@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"time"
 
@@ -62,8 +63,29 @@ func getDSN() string {
 		sslmode = "require"
 	}
 
-	return fmt.Sprintf(
+	// Resolve host to IPv4 address to avoid Docker IPv6 issues
+	if host != "" {
+		addrs, err := net.LookupHost(host)
+		if err == nil {
+			// Find first IPv4 address
+			for _, addr := range addrs {
+				if ip := net.ParseIP(addr); ip != nil && ip.To4() != nil {
+					log.Printf("Resolved %s to IPv4: %s", host, addr)
+					host = addr
+					break
+				}
+			}
+		}
+	}
+
+	// For Supabase and other cloud databases, ensure proper SSL configuration
+	dsn := fmt.Sprintf(
 		"user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
 		user, password, host, port, dbname, sslmode,
 	)
+
+	// Log DSN without password for debugging
+	log.Printf("DSN (without password): user=%s host=%s port=%s dbname=%s sslmode=%s", user, host, port, dbname, sslmode)
+
+	return dsn
 }
