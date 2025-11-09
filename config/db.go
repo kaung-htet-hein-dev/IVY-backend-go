@@ -47,6 +47,11 @@ func ConnectDB() *gorm.DB {
 	rawDB.SetMaxIdleConns(25)
 	rawDB.SetConnMaxLifetime(5 * time.Minute)
 
+	// Enable uuid-ossp extension for UUID generation
+	if err := db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"").Error; err != nil {
+		log.Warnf("Failed to create uuid-ossp extension (may already exist or lack permissions): %v", err)
+	}
+
 	DB = db
 	return DB
 }

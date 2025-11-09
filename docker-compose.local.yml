@@ -22,15 +22,3 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       SSL_MODE: ${SSL_MODE}
-    networks:
-      - ivy-network
-
-networks:
-  ivy-network:
-    enable_ipv6: true
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.20.0.0/16
-        - subnet: 2001:db8:1::/64
