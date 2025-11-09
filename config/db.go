@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"time"
 
@@ -61,21 +60,6 @@ func getDSN() string {
 	sslmode := os.Getenv("SSL_MODE")
 	if sslmode == "" {
 		sslmode = "require"
-	}
-
-	// Resolve host to IPv4 address to avoid Docker IPv6 issues
-	if host != "" {
-		addrs, err := net.LookupHost(host)
-		if err == nil {
-			// Find first IPv4 address
-			for _, addr := range addrs {
-				if ip := net.ParseIP(addr); ip != nil && ip.To4() != nil {
-					log.Printf("Resolved %s to IPv4: %s", host, addr)
-					host = addr
-					break
-				}
-			}
-		}
 	}
 
 	// For Supabase and other cloud databases, ensure proper SSL configuration

@@ -26,7 +26,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 FROM alpine:latest
 
 # Install ca-certificates and create non-root user
-RUN apk --no-cache add ca-certificates && \
+# Also install bind-tools for DNS resolution (helps with IPv6)
+RUN apk --no-cache add ca-certificates bind-tools && \
     addgroup -g 1001 appgroup && \
     adduser -u 1001 -G appgroup -s /bin/sh -D appuser
 

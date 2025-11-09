@@ -1,19 +1,32 @@
 services:
-  db:
-    image: postgres:15
-    container_name: ivy-api-postgres
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ivy-api
     restart: always
     env_file:
       - ./.env.development
     ports:
-      - "5432:5432"
+      - "8080:8080"
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      APP_PORT: ${APP_PORT}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SSL_MODE: ${SSL_MODE}
+    networks:
+      - ivy-network
 
-volumes:
-  postgres_data:
+networks:
+  ivy-network:
+    enable_ipv6: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+        - subnet: 2001:db8:1::/64
