@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// Initialize DB connection
-	godotenv.Load(".env.local")
+	godotenv.Load(".env.development")
 	db := config.ConnectDB()
 
 	db.AutoMigrate(
