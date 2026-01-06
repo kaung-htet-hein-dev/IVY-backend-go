@@ -30,8 +30,7 @@ func (s *DBSeeder) Seed() error {
 
 	// Seed users
 	usersID := []string{
-		"user_2ySBbJltMIaupaK9RRAjbm8Gf3S",
-		"user_2ySBUORv85VM2130ZgqtjsVhiTw",
+		"user_35ERYpSIIeHDfT9lBImcNbzvLvR",
 	}
 
 	// Seed categories
@@ -147,7 +146,7 @@ func (s *DBSeeder) seedServices(categories []entity.Category, branches []entity.
 			DurationMinute: 30,
 			Price:          price,
 			CategoryID:     categories[categoryIndex].ID,
-			Image:          fmt.Sprintf("service_%d.jpg", i),
+			Image:          "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGFpciUyMHNhbG9ufGVufDB8fDB8fHww&fm=jpg&q=60&w=3000",
 			IsActive:       true,
 			Branches:       selectedBranches,
 		}

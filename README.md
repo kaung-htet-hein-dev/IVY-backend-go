@@ -255,3 +255,13 @@ CLERK_WEBHOOK_SECRET=your-webhook-secret
 ---
 
 **Built with Go, Clean Architecture, and Clerk Authentication**
+
+## Maintenance Notes
+
+> **Important**: App and database on Render and Supabase will be deactivated after 1 month of inactivity.
+
+### To Restart After Inactivity
+
+1. Create a new database on Supabase
+2. Update Render environment variables with the IPv4 transaction pooler connection string
+3. Retrigger build and deploy on Render
