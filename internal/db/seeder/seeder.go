@@ -24,13 +24,13 @@ func NewSeeder(db *gorm.DB) Seeder {
 
 func (s *DBSeeder) Seed() error {
 	// Clear all existing data
-	// if err := s.clearTables(); err != nil {
-	// 	return err
-	// }
+	if err := s.clearTables(); err != nil {
+		return err
+	}
 
 	// Seed users
 	usersID := []string{
-		"user_35ERYpSIIeHDfT9lBImcNbzvLvR",
+		"user_37t2adTt5cVZxQKlAGFEunsfFSm",
 	}
 
 	// Seed categories
