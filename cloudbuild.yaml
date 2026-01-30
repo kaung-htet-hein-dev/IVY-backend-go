@@ -1,0 +1,18 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/ivy-project-461203/kaung-htet-hein-dev-gh/ivy-backend:$COMMIT_SHA",
+        "."
+      ]
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-southeast1-docker.pkg.dev/ivy-project-461203/kaung-htet-hein-dev-gh/ivy-backend:$COMMIT_SHA"
+      ]
+
+options:
+  logging: CLOUD_LOGGING_ONLY
